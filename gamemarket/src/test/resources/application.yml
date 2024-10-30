@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: game-market
+
+application:
+  payment-service:
+    base-path: http://localhost:8081
+    payments: ${application.payment-service.base-path}/payment-service/v1/payments
+  product-service:
+    base-path: http://localhost:8081
+    products: ${application.product-service.base-path}/product-service/v1/
+
+tests:
+  unit-tests:
+    enabled: true
