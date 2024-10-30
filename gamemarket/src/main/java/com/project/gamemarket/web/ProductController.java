@@ -47,4 +47,9 @@ public class ProductController {
     public ResponseEntity<ProductDetailsDto> deleteProductById(@PathVariable Long id) {
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/wiremock/{id}")
+    public ResponseEntity<ProductDetailsDto> getProductByIdWiremock(@PathVariable Long id) {
+        return ResponseEntity.ok(productMapper.toProductDetailsDto(productService.getProductByIdWiremock(id)));
+    }
 }

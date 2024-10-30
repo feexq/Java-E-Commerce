@@ -1,6 +1,8 @@
 package com.project.gamemarket.web;
 
 import com.project.gamemarket.service.exception.CustomerNotFoundException;
+import com.project.gamemarket.service.exception.PaymentClientFailedProcessPayment;
+import com.project.gamemarket.service.exception.PaymentTransactionFailed;
 import com.project.gamemarket.service.exception.ProductNotFoundException;
 import com.project.gamemarket.web.exception.ParamsViolationDetails;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.net.ConnectException;
 import java.net.URI;
 import java.util.List;
 
@@ -44,6 +47,26 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
         problemDetail.setStatus(NOT_FOUND);
         problemDetail.setType(URI.create("product-not-found"));
         problemDetail.setTitle("Product Not Found");
+        return problemDetail;
+    }
+
+    @ExceptionHandler(PaymentClientFailedProcessPayment.class)
+    ProblemDetail handlePaymentClientFailedProcessPayment(PaymentClientFailedProcessPayment ex) {
+        log.error("paymentClientFailedProcessPayment");
+        ProblemDetail problemDetail = forStatusAndDetail(BAD_REQUEST, ex.getMessage());
+        problemDetail.setStatus(BAD_REQUEST);
+        problemDetail.setType(URI.create("payment-client-failed-process-payment"));
+        problemDetail.setTitle("Payment Client Failed Process Payment");
+        return problemDetail;
+    }
+
+    @ExceptionHandler(PaymentTransactionFailed.class)
+    ProblemDetail handlePaymentTransactionFailed(PaymentTransactionFailed ex) {
+        log.error("PaymentTransactionFailed");
+        ProblemDetail problemDetail = forStatusAndDetail(BAD_REQUEST, ex.getMessage());
+        problemDetail.setStatus(BAD_REQUEST);
+        problemDetail.setType(URI.create("payment-transaction-failed"));
+        problemDetail.setTitle("Payment Transaction Failed");
         return problemDetail;
     }
 

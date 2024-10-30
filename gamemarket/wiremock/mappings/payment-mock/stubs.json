@@ -1,0 +1,23 @@
+{
+  "mappings": [
+    {
+      "id": "1e636f65-59a8-463b-9fee-803247a0b1bd",
+      "name": "Payment-Service Create Payment",
+      "request": {
+        "url": "/payment-service/v1/payments",
+        "method": "POST"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "uuid": "20705c55-726a-4f45-ac28-1e06c0a202fb",
+          "status": "SUCCESS",
+          "consumerReference": "consumerReference"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    }
+  ]
+}

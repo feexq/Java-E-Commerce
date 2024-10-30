@@ -3,19 +3,32 @@ package com.project.gamemarket.service.impl;
 import com.project.gamemarket.common.DeviceType;
 import com.project.gamemarket.common.GenreType;
 import com.project.gamemarket.domain.ProductDetails;
-import com.project.gamemarket.dto.product.ProductDetailsDto;
 import com.project.gamemarket.service.ProductService;
+import com.project.gamemarket.service.exception.PaymentClientFailedProcessPayment;
 import com.project.gamemarket.service.exception.ProductNotFoundException;
-import lombok.RequiredArgsConstructor;
+import com.project.gamemarket.service.mapper.PaymentServiceMapper;
+import com.project.gamemarket.service.mapper.ProductMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
 
 import java.util.*;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
+
+    private final RestClient productClient;
+    private final String productServiceEndpoint;
+
+    public ProductServiceImpl(@Qualifier("productRestClient") RestClient paymentClient,
+                              @Value("${application.product-service.products}") String productServiceEndpoint) {
+        this.productClient = paymentClient;
+        this.productServiceEndpoint = productServiceEndpoint;
+    }
 
     private final List<ProductDetails> products = buildProductDetailsMock();
 
@@ -48,6 +61,19 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDetails deleteProduct(Long id) {
         return null;
+    }
+
+    @Override
+    public ProductDetails getProductByIdWiremock(Long id) {
+        ProductDetails productDetails = productClient.get()
+                .uri(productServiceEndpoint+id)
+                .retrieve()
+                .onStatus(HttpStatusCode::isError, (request, response) -> {
+                    log.error("Server response failed to find this product. Response Code {}", response.getStatusCode());
+                    throw new ProductNotFoundException(id);})
+                .body(ProductDetails.class);
+
+        return productDetails;
     }
 
     @Override

@@ -16,4 +16,6 @@ public interface ProductService {
     ProductDetails getProductById(Long id);
 
     List<ProductDetails> getProducts();
+
+    ProductDetails getProductByIdWiremock(Long id);
 }
