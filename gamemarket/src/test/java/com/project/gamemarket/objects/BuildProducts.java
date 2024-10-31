@@ -1,97 +1,67 @@
-package com.project.gamemarket.service.impl;
+package com.project.gamemarket.objects;
 
 import com.project.gamemarket.common.DeviceType;
 import com.project.gamemarket.common.GenreType;
 import com.project.gamemarket.domain.ProductDetails;
 import com.project.gamemarket.dto.product.ProductDetailsDto;
-import com.project.gamemarket.service.ProductService;
-import com.project.gamemarket.service.exception.PaymentClientFailedProcessPayment;
-import com.project.gamemarket.service.exception.ProductNotFoundException;
-import com.project.gamemarket.service.mapper.PaymentServiceMapper;
-import com.project.gamemarket.service.mapper.ProductMapper;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
+import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.List;
+import java.util.Random;
 
-@Service
-@Slf4j
-public class ProductServiceImpl implements ProductService {
+@Component
+public class BuildProducts {
 
-    private final RestClient productClient;
-    private final String productServiceEndpoint;
-    private final Map<Long, ProductDetailsDto> productDetailsDtoMap = new HashMap<>();
+    public static final Long ID = new Random().nextLong();
 
-    public ProductServiceImpl(@Qualifier("productRestClient") RestClient paymentClient,
-                              @Value("${application.product-service.products}") String productServiceEndpoint) {
-        this.productClient = paymentClient;
-        this.productServiceEndpoint = productServiceEndpoint;
-    }
-
-    private final List<ProductDetails> products = buildProductDetailsMock();
-
-    @Override
-    public ProductDetails addProduct(ProductDetails product) {
+    public ProductDetails buildProductDetailsMock() {
         return ProductDetails.builder()
-                .id(new Random().nextLong())
-                .title(product.getTitle())
-                .shortDescription(product.getShortDescription())
-                .price(product.getPrice())
-                .developer(product.getDeveloper())
-                .deviceTypes(product.getDeviceTypes())
-                .genres(product.getGenres())
+                .id(ID)
+                .title("Witcher 3")
+                .shortDescription("The game takes place in a fictional fantasy world based on Slavic mythology. Players control Geralt of Rivia, a monster slayer for hire known as a Witcher, and search for his adopted daughter, who is on the run from the otherworldly Wild Hunt.")
+                .price(30.0)
+                .developer("CD Projekt Red")
+                .deviceTypes(List.of(DeviceType.CONSOLE, DeviceType.PC))
+                .genres(List.of(GenreType.RPG,GenreType.MYTHOLOGY))
                 .build();
     }
 
-    @Override
-    public ProductDetails updateProduct(ProductDetails product) {
-        return getProductById(product.getId()).toBuilder()
-                .id(product.getId())
-                .title(product.getTitle())
-                .shortDescription(product.getShortDescription())
-                .price(product.getPrice())
-                .developer(product.getDeveloper())
-                .deviceTypes(product.getDeviceTypes())
-                .genres(product.getGenres())
+    public ProductDetailsDto buildProductDetailsDtoMock() {
+        return ProductDetailsDto.builder()
+                .title("Witcher 3")
+                .shortDescription("The game takes place in a fictional fantasy world based on Slavic mythology. Players control Geralt of Rivia, a monster slayer for hire known as a Witcher, and search for his adopted daughter, who is on the run from the otherworldly Wild Hunt.")
+                .price(30.0)
+                .developer("CD Projekt Red")
+                .deviceTypes(List.of("console", "pc"))
+                .genres(List.of("rpg","mythology"))
                 .build();
     }
 
-    @Override
-    public void deleteProduct(Long id) {
+    public ProductDetails buildThrowCustomValidationExceptionProductDetailsMock() {
+        return ProductDetails.builder()
+                .id(1L)
+                .title("Witcher 3")
+                .shortDescription("The game takes place in a fictional fantasy world based on Slavic mythology. Players control Geralt of Rivia, a monster slayer for hire known as a Witcher, and search for his adopted daughter, who is on the run from the otherworldly Wild Hunt.")
+                .price(30.0)
+                .developer("1C")
+                .deviceTypes(List.of(DeviceType.CONSOLE, DeviceType.PC))
+                .genres(List.of(GenreType.RPG,GenreType.MYTHOLOGY))
+                .build();
     }
 
-    @Override
-    public ProductDetails getProductByIdWiremock(Long id) {
-        return productClient.get()
-                .uri(productServiceEndpoint+id)
-                .retrieve()
-                .onStatus(HttpStatusCode::isError, (request, response) -> {
-                    log.error("Server response failed to find this product. Response Code {}", response.getStatusCode());
-                    throw new ProductNotFoundException(id);})
-                .body(ProductDetails.class);
+    public ProductDetails buildThrowValidationExceptionProductDetailsMock() {
+        return ProductDetails.builder()
+                .id(1L)
+                .title("")
+                .shortDescription("")
+                .price(0.0)
+                .developer("")
+                .deviceTypes(null)
+                .genres(null)
+                .build();
     }
 
-    @Override
-    public ProductDetails getProductById(Long id) {
-        return Optional.of(products.stream()
-                        .filter(product -> product.getId().equals(id)).findFirst())
-                .get()
-                .orElseThrow(() -> {
-                    log.error("Product with id {} not found", id);
-                    return new ProductNotFoundException(id);
-                });
-    }
-
-    @Override
-    public List<ProductDetails> getProducts() {
-        return products;
-    }
-
-    private List<ProductDetails> buildProductDetailsMock() {
+    public List<ProductDetails> buildProductDetailsListMock() {
         return List.of(
                 ProductDetails.builder()
                         .id(1L)

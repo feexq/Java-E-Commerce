@@ -1,10 +1,12 @@
 package com.project.gamemarket.common;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
+@JsonFormat(shape = JsonFormat.Shape.STRING)
 public enum DeviceType {
 
     PC("PC"),
