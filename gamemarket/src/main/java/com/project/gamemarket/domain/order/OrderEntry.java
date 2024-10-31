@@ -1,6 +1,6 @@
 package com.project.gamemarket.domain.order;
 
-import com.project.gamemarket.common.GameType;
+import com.project.gamemarket.domain.ProductDetails;
 import lombok.Builder;
 import lombok.Value;
 
@@ -8,6 +8,7 @@ import lombok.Value;
 @Builder(toBuilder = true)
 public class OrderEntry {
 
-    GameType gameType;
+    //заглушка
+    ProductDetails gameType;
     int quantity;
 }

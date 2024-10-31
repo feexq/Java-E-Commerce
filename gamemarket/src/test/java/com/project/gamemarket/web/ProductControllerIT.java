@@ -60,8 +60,9 @@ public class ProductControllerIT {
 
     @Test
     void shouldCreateProduct(){
+        ProductDetails productDetails = productMapper.toProductDetails(buildProducts.buildProductDetailsDtoMock());
 
-        when(productService.addProduct(ArgumentMatchers.any(ProductDetails.class))).thenReturn(buildProducts.buildProductDetailsMock());
+        when(productService.addProduct(ArgumentMatchers.any(ProductDetails.class))).thenReturn(productDetails);
 
         ResponseEntity<ProductDetailsDto> response = productController.createProduct(buildProducts.buildProductDetailsDtoMock());
 

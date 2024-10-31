@@ -3,11 +3,7 @@ package com.project.gamemarket.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.project.gamemarket.AbstractTI;
-import com.project.gamemarket.common.DeviceType;
-import com.project.gamemarket.common.GenreType;
-import com.project.gamemarket.domain.ProductDetails;
 import com.project.gamemarket.objects.BuildProducts;
-import com.project.gamemarket.service.ProductService;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -18,16 +14,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.shaded.org.checkerframework.checker.units.qual.A;
 
 import java.net.URI;
-import java.util.List;
 import java.util.Random;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.project.gamemarket.service.exception.ProductNotFoundException.PRODUCT_NOT_FOUND_MESSAGE;
-import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
