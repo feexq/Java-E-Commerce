@@ -28,7 +28,7 @@ public class RestClientConfiguration {
 //            .build();
 //    }
 //
-    @Bean("productRestClient")
+    @Bean("keyRestClient")
     public RestClient ProductRestClient() {
         return RestClient.builder()
                 .requestFactory(getClientHttpRequestFactory(responseTimeout))

@@ -22,7 +22,7 @@ configurations {
 
 ext {
 	// Minimal Coverage
-	minimumCoveragePerFile = 0.5
+	minimumCoveragePerFile = 0.7
 	filesExcludedFromCoverage = [
 			"**/common/*",
 			"**/domain/*",

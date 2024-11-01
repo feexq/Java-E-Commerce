@@ -2,20 +2,18 @@ package com.project.gamemarket.service.impl;
 
 import com.project.gamemarket.common.DeviceType;
 import com.project.gamemarket.common.GenreType;
+import com.project.gamemarket.common.KeyActivationStatus;
 import com.project.gamemarket.domain.ProductDetails;
-import com.project.gamemarket.dto.product.ProductDetailsDto;
-import com.project.gamemarket.service.ProductFindService;
+import com.project.gamemarket.dto.key.KeyActivationRequestDto;
+import com.project.gamemarket.dto.key.KeyActivationResponseDto;
+import com.project.gamemarket.service.KeyActivationService;
 import com.project.gamemarket.service.ProductService;
+import com.project.gamemarket.service.exception.KeyActivationFailedProcessActivation;
 import com.project.gamemarket.service.exception.ProductNotFoundException;
-import com.project.gamemarket.service.mapper.ProductMapper;
+import com.project.gamemarket.service.mapper.KeyMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
 
 import java.util.*;
 
@@ -24,7 +22,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
 
-    private final ProductFindService productFindService;
+    private final KeyActivationService keyActivationService;
 
     private final Long ID = new Random().nextLong();
 
@@ -61,8 +59,15 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDetails getProductByIdWiremock(Long id) {
-        return productFindService.processFinding(id);
+    public ProductDetails getProductByKeyActivation(KeyActivationRequestDto context) {
+        log.info("Getting product for with key: {}", context.getCustomerId());
+        KeyActivationResponseDto keyActivationResponseDto = keyActivationService.processKeyActivation(context);
+        if (KeyActivationStatus.EXPIRED.equals(keyActivationResponseDto.getStatus())
+                || KeyActivationStatus.NOT_EXISTENT.equals(keyActivationResponseDto.getStatus())) {
+            throw new KeyActivationFailedProcessActivation(keyActivationResponseDto.getKey().replace("\"", ""));
+        }
+
+        return getProductById(Long.parseLong(keyActivationResponseDto.getProductId()));
     }
 
     @Override

@@ -2,15 +2,19 @@ package com.project.gamemarket.service;
 
 import com.project.gamemarket.common.DeviceType;
 import com.project.gamemarket.common.GenreType;
+import com.project.gamemarket.common.KeyActivationStatus;
 import com.project.gamemarket.domain.ProductDetails;
+import com.project.gamemarket.dto.key.KeyActivationRequestDto;
+import com.project.gamemarket.dto.key.KeyActivationResponseDto;
+import com.project.gamemarket.service.exception.KeyActivationFailedProcessActivation;
 import com.project.gamemarket.service.exception.ProductNotFoundException;
 import com.project.gamemarket.service.impl.ProductServiceImpl;
+import com.project.gamemarket.service.mapper.KeyMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 
 import static org.mockito.Mockito.*;
 
@@ -24,13 +28,15 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("Product Service Tests")
 public class ProductServiceTest {
 
+    private static final String KEY = "46717-H67O6-MBGRG";
+    private static final String CUSTOMER_REFERENCE = "VLAD";
+    private static final String PRODUCT_ID = "1";
+
     @Autowired
     private ProductService productService;
 
     @MockBean
-    private ProductFindService productFindService;
-
-    private final Long ID = new Random().nextLong();
+    private KeyActivationService keyActivationService;
 
     @Test
     void shouldAddProduct() {
@@ -80,7 +86,7 @@ public class ProductServiceTest {
 
     @Test
     void shouldThrowProductNotFountExceptionUpdateProduct() {
-        ProductDetails newProduct = buildProductDetailsMock();
+        ProductDetails newProduct = buildProductDetailsMock().toBuilder().id(255L).build();
 
         assertThrows(ProductNotFoundException.class,
                 () -> productService.updateProduct(newProduct));
@@ -88,35 +94,36 @@ public class ProductServiceTest {
     }
 
     @Test
-    void shouldFindByIdWiremock(){
-        ProductDetails buildProduct = buildProductDetailsMock();
+    void shouldActivateProduct(){
+        KeyActivationRequestDto keyActivationRequestDto = KeyActivationRequestDto.builder().key(KEY).customerId(CUSTOMER_REFERENCE).build();
+        KeyActivationResponseDto keyActivationResponseDto = KeyActivationResponseDto.builder().key(KEY).productId(PRODUCT_ID).status(KeyActivationStatus.SUCCESS).build();
 
-        when(productFindService.processFinding(eq(ID))).thenReturn(buildProduct);
+        when(keyActivationService.processKeyActivation(eq(keyActivationRequestDto))).thenReturn(keyActivationResponseDto);
 
-        ProductDetails result = productService.getProductByIdWiremock(ID);
+        ProductDetails result = productService.getProductByKeyActivation(keyActivationRequestDto);
 
-        verify(productFindService, times(1)).processFinding(ID);
+        verify(keyActivationService, times(1)).processKeyActivation(keyActivationRequestDto);
         assertNotNull(result);
+        assertEquals(buildProductDetailsMock(), result);
 
     }
 
     @Test
-    void shouldThrowFindByIdWiremock(){
-        ProductDetails buildProduct = buildProductDetailsMock();
+    void shouldThrowKeyActivationException(){
+        KeyActivationRequestDto keyActivationRequestDto = KeyActivationRequestDto.builder().key(KEY).customerId(CUSTOMER_REFERENCE).build();
+        KeyActivationResponseDto keyActivationResponseDto = KeyActivationResponseDto.builder().key(KEY).productId(PRODUCT_ID).status(KeyActivationStatus.EXPIRED).build();
 
-        when(productFindService.processFinding(eq(ID))).thenReturn(buildProduct);
+        when(keyActivationService.processKeyActivation(eq(keyActivationRequestDto))).thenReturn(keyActivationResponseDto);
 
-        ProductDetails result = productService.getProductByIdWiremock(ID);
-
-        verify(productFindService, times(1)).processFinding(ID);
-        assertNotNull(result);
+        assertThrows(KeyActivationFailedProcessActivation.class, () -> productService.getProductByKeyActivation(keyActivationRequestDto));
+        verify(keyActivationService, times(1)).processKeyActivation(keyActivationRequestDto);
 
     }
 
 
     public ProductDetails buildProductDetailsMock() {
         return ProductDetails.builder()
-                .id(ID)
+                .id(1L)
                 .title("Witcher 3")
                 .shortDescription("The game takes place in a fictional fantasy world based on Slavic mythology. Players control Geralt of Rivia, a monster slayer for hire known as a Witcher, and search for his adopted daughter, who is on the run from the otherworldly Wild Hunt.")
                 .price(30.0)

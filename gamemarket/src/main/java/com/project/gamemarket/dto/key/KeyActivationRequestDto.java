@@ -1,6 +1,5 @@
-package com.project.gamemarket.dto.payment;
+package com.project.gamemarket.dto.key;
 
-import com.project.gamemarket.common.PaymentStatus;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
@@ -10,9 +9,8 @@ import java.util.UUID;
 @Value
 @Builder(toBuilder = true)
 @Jacksonized
-public class PaymentClientResponseDto {
+public class KeyActivationRequestDto {
 
-    UUID uuid;
-    PaymentStatus status;
+    String key;
     String customerId;
 }

@@ -3,6 +3,7 @@ package com.project.gamemarket.web;
 import com.project.gamemarket.service.exception.CustomerNotFoundException;
 //import com.project.gamemarket.service.exception.PaymentClientFailedProcessPayment;
 //import com.project.gamemarket.service.exception.PaymentTransactionFailed;
+import com.project.gamemarket.service.exception.KeyActivationFailedProcessActivation;
 import com.project.gamemarket.service.exception.ProductNotFoundException;
 import com.project.gamemarket.web.exception.ParamsViolationDetails;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +38,16 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
         problemDetail.setStatus(NOT_FOUND);
         problemDetail.setType(URI.create("customer-not-found"));
         problemDetail.setTitle("Customer Not Found");
+        return problemDetail;
+    }
+
+    @ExceptionHandler(KeyActivationFailedProcessActivation.class)
+    ProblemDetail handleKeyActivationFailedProcessActivationException(KeyActivationFailedProcessActivation ex) {
+        log.error("KeyActivationFailedProcessActivation");
+        ProblemDetail problemDetail = forStatusAndDetail(BAD_REQUEST, ex.getMessage());
+        problemDetail.setStatus(BAD_REQUEST);
+        problemDetail.setType(URI.create("key-activation-failed"));
+        problemDetail.setTitle("Key Activation Failed");
         return problemDetail;
     }
 

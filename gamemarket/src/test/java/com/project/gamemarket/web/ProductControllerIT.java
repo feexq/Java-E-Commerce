@@ -25,9 +25,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.hamcrest.Matchers.*;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -46,9 +45,6 @@ public class ProductControllerIT {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private ProductController productController;
 
     @Autowired
     private ProductMapper productMapper;
@@ -145,6 +141,27 @@ public class ProductControllerIT {
                 .andExpect(jsonPath("$.productDetailsEntries[*].price").exists());
 
         verify(productService, times(1)).getProducts();
+    }
+
+    @Test
+    @SneakyThrows
+    void shouldFindProductById() {
+        long productId = 1L;
+
+        when(productService.getProductById(productId)).thenReturn(buildProducts.buildProductDetailsMock());
+
+        mockMvc.perform(get("/api/v1/products/{id}", productId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{"
+                        + "\"title\": \"Witcher 3\","
+                        + "\"shortDescription\": \"The game takes place in a fictional fantasy world based on Slavic mythology. Players control Geralt of Rivia, a monster slayer for hire known as a Witcher, and search for his adopted daughter, who is on the run from the otherworldly Wild Hunt.\","
+                        + "\"price\": 30.0,"
+                        + "\"developer\": \"CD Projekt Red\","
+                        + "\"deviceTypes\": [\"console\", \"pc\"],"
+                        + "\"genres\": [\"rpg\", \"mythology\"]"
+                        + "}"));
     }
 
 }

@@ -6,6 +6,6 @@ application:
   payment-service:
     base-path: http://localhost:8081
     payments: ${application.payment-service.base-path}/payment-service/v1/payments
-  product-service:
+  key-service:
     base-path: http://localhost:8081
-    products: ${application.product-service.base-path}/product-service/v1/
+    keys: ${application.key-service.base-path}/key-service/v1/activate

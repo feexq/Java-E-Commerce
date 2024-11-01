@@ -12,14 +12,14 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext
-public class AbstractTI {
+public class AbstractIt {
 
     @RegisterExtension
     static WireMockExtension wireMockServer = WireMockExtension.newInstance().options(wireMockConfig().dynamicPort()).configureStaticDsl(true).build();
 
     @DynamicPropertySource
     static void setupTestContainerProperties(DynamicPropertyRegistry registry) {
-        registry.add("application.product-service.base-path", wireMockServer::baseUrl);
+        registry.add("application.key-service.base-path", wireMockServer::baseUrl);
         WireMock.configureFor(wireMockServer.getPort());
     }
 }

@@ -2,8 +2,10 @@ package com.project.gamemarket.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.project.gamemarket.AbstractTI;
-import com.project.gamemarket.objects.BuildProducts;
+import com.project.gamemarket.AbstractIt;
+import com.project.gamemarket.common.KeyActivationStatus;
+import com.project.gamemarket.dto.key.KeyActivationRequestDto;
+import com.project.gamemarket.dto.key.KeyActivationResponseDto;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -16,14 +18,13 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.net.URI;
-import java.util.Random;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.project.gamemarket.service.exception.ProductNotFoundException.PRODUCT_NOT_FOUND_MESSAGE;
+import static com.project.gamemarket.service.exception.KeyActivationFailedProcessActivation.KEY_S_ACTIVATION_FAILED_PROCESS_ACTIVATION;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -34,15 +35,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @DisplayName("Product Controller Wiremock IT")
 @Tag("product-service-wiremock")
-public class ProductControllerWiremockIT extends AbstractTI {
+public class ProductControllerKeyActivationIT extends AbstractIt {
 
-    public static final Long ID = new Random().nextLong();
+    private static final String CUSTOMER_REFERENCE = "Petrik";
+    private static final String KEY = "B2Q65-R9DN8-674S7";
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private BuildProducts buildProducts;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -50,15 +49,18 @@ public class ProductControllerWiremockIT extends AbstractTI {
 
     @Test
     @SneakyThrows
-    void shouldFindProductById() {
-        stubFor(WireMock.get("/product-service/v1/" + ID)
+    void shouldFindProductByActivationKey() {
+        KeyActivationRequestDto keyActivationRequestDto = KeyActivationRequestDto.builder().customerId(CUSTOMER_REFERENCE).key("B2Q65-R9DN8-674S7").build();
+
+        stubFor(WireMock.post("/key-service/v1/activate")
                 .willReturn(aResponse().withStatus(200)
                         .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-                        .withBody(objectMapper.writeValueAsBytes(buildProducts.buildProductDetailsMock()))));
+                        .withBody(objectMapper.writeValueAsBytes(KeyActivationResponseDto.builder().status(KeyActivationStatus.SUCCESS).productId("1").key("B2Q65-R9DN8-674S7").build()))));
 
-        mockMvc.perform(get("/api/v1/products/wiremock/{id}", ID)
+        mockMvc.perform(post("/api/v1/products/{customerReference}/activate",keyActivationRequestDto.getCustomerId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(keyActivationRequestDto.getKey())))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$.title").value("Witcher 3"))
@@ -75,22 +77,28 @@ public class ProductControllerWiremockIT extends AbstractTI {
     @Test
     @SneakyThrows
     void shouldDropProductNotFoundException() {
+        KeyActivationRequestDto keyActivationRequestDto = KeyActivationRequestDto.builder().customerId(CUSTOMER_REFERENCE).key("B2Q65-R9DN8-674S7").build();
 
         ProblemDetail problemDetail =
-                ProblemDetail.forStatusAndDetail(NOT_FOUND, String.format(PRODUCT_NOT_FOUND_MESSAGE, ID));
+                ProblemDetail.forStatusAndDetail(BAD_REQUEST, String.format(KEY_S_ACTIVATION_FAILED_PROCESS_ACTIVATION,keyActivationRequestDto.getKey()));
 
-        problemDetail.setType(URI.create("product-not-found"));
-        problemDetail.setTitle("Product Not Found");
+        problemDetail.setType(URI.create("key-activation-failed"));
+        problemDetail.setTitle("Key Activation Failed");
 
-        stubFor(WireMock.get("/product-service/v1/" + ID)
-                .willReturn(aResponse().withStatus(404)
+        stubFor(WireMock.post("/key-service/v1/activate")
+                .willReturn(aResponse().withStatus(400)
                         .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-                        .withBody(objectMapper.writeValueAsBytes(null))));
+                        .withBody(objectMapper.writeValueAsBytes(KeyActivationResponseDto.builder()
+                                .status(KeyActivationStatus.EXPIRED)
+                                .productId("1")
+                                .key("B2Q65-R9DN8-674S7")
+                                .build()))));
 
-        mockMvc.perform(get("/api/v1/products/wiremock/{id}", ID)
+        mockMvc.perform(post("/api/v1/products/{customerReference}/activate",CUSTOMER_REFERENCE)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(KEY)))
+                .andExpect(status().isBadRequest())
                 .andExpect(content().json(objectMapper.writeValueAsString(problemDetail)));
     }
 

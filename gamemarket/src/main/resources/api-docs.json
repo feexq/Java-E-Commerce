@@ -158,6 +158,46 @@
         }
       }
     },
+    "/api/v1/products/{customerReference}/activate": {
+      "post": {
+        "tags": [
+          "product-controller"
+        ],
+        "operationId": "getProductByKeyActivation",
+        "parameters": [
+          {
+            "name": "customerReference",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductDetailsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/customers": {
       "get": {
         "tags": [
@@ -199,37 +239,6 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/CustomerDetailsDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/products/wiremock/{id}": {
-      "get": {
-        "tags": [
-          "product-controller"
-        ],
-        "operationId": "getProductByIdWiremock",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProductDetailsDto"
                 }
               }
             }

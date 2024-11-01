@@ -1,7 +1,7 @@
 package com.project.gamemarket.service;
 
 import com.project.gamemarket.domain.ProductDetails;
-import com.project.gamemarket.dto.product.ProductDetailsDto;
+import com.project.gamemarket.dto.key.KeyActivationRequestDto;
 
 import java.util.List;
 
@@ -17,5 +17,5 @@ public interface ProductService {
 
     List<ProductDetails> getProducts();
 
-    ProductDetails getProductByIdWiremock(Long id);
+    ProductDetails getProductByKeyActivation(KeyActivationRequestDto context);
 }
