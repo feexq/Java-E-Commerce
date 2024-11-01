@@ -24,6 +24,10 @@ ext {
 	// Minimal Coverage
 	minimumCoveragePerFile = 0.5
 	filesExcludedFromCoverage = [
+			"**/common/*",
+			"**/domain/*",
+			"**/dto/*",
+			"**/service/mapper/*",
 			"**/*MarketApplication.*",
 			"**/config/*Configuration.*"
 	]

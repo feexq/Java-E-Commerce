@@ -2,8 +2,6 @@ package com.project.gamemarket.web;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.gamemarket.Config.MappersTestConfiguration;
-import com.project.gamemarket.common.DeviceType;
 import com.project.gamemarket.domain.CustomerDetails;
 import com.project.gamemarket.domain.ProductDetails;
 import com.project.gamemarket.dto.customer.CustomerDetailsDto;
@@ -22,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
@@ -35,13 +32,16 @@ import java.util.List;
 import java.util.Random;
 
 import static com.project.gamemarket.service.exception.CustomerNotFoundException.CUSTOMER_NOT_FOUND_MESSAGE;
+import static com.project.gamemarket.service.exception.ProductNotFoundException.PRODUCT_NOT_FOUND_MESSAGE;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -71,11 +71,23 @@ public class CustomerControllerIT {
 
 
     @Test
+    @SneakyThrows
     void shouldCreateCustomer() {
-        ResponseEntity<CustomerDetailsDto> response = customerController.createCustomer(buildCustomers.buildCustomerDetailsDto());
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(buildCustomers.buildCustomerDetailsDto(),response.getBody());
+        CustomerDetailsDto customerDetailsDto = buildCustomers.buildCustomerDetailsDto();
+
+        mockMvc.perform(post("/api/v1/customers")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(customerDetailsDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(customerDetailsDto.getName()))
+                .andExpect(jsonPath("$.email").value(customerDetailsDto.getEmail()))
+                .andExpect(jsonPath("$.region").value(customerDetailsDto.getRegion()))
+                .andExpect(jsonPath("$.phoneNumber").value(customerDetailsDto.getPhoneNumber()))
+                .andExpect(jsonPath("$.deviceTypes").isArray());
+
+
     }
 
     @Test
@@ -99,36 +111,73 @@ public class CustomerControllerIT {
     }
 
     @Test
+    @SneakyThrows
     void shouldThrowsCustomValidationException() {
-        CustomerDetailsDto dto = customDetailsMapper.toCustomerDetailsDto(buildCustomers.buildInvalidCustomerDetails());
+        CustomerDetailsDto dto = customDetailsMapper.toCustomerDetailsDto(buildCustomers.buildCustomInvalidCustomerDetails());
 
-        ConstraintViolationException exception =
-                assertThrows(ConstraintViolationException.class,
-                        () -> customerController.createCustomer(dto));
-
-        assertTrue(exception.getMessage().contains("The region is not valid. Allowed regions: Ukraine, Poland, Germany, France, USA, Canada, UK, Netherlands, Japan."));
-
+        mockMvc.perform(post("/api/v1/customers")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(dto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.type").value("urn:problem-type:validation-error"))
+                .andExpect(jsonPath("$.title").value("Field Validation Exception"))
+                .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(jsonPath("$.detail").value("Request validation failed"))
+                .andExpect(jsonPath("$.invalidParams", hasSize(greaterThan(0))))
+                .andExpect(jsonPath("$.invalidParams[*].fieldName")
+                        .value(containsInAnyOrder("region")))
+                .andExpect(jsonPath("$.invalidParams[*].reason").exists());
     }
 
     @Test
+    @SneakyThrows
     void shouldFindByIdCustomer() {
-        when(customerService.getCustomerDetailsById(ID)).thenReturn(buildCustomers.buildCustomerDetails());
+        CustomerDetails customer = buildCustomers.buildCustomerDetails();
 
-        ResponseEntity<CustomerDetailsDto> response = customerController.getCustomerById(1L);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(buildCustomers.buildCustomerDetailsDto(),response.getBody());
+        when(customerService.getCustomerDetailsById(ID)).thenReturn(customer);
+
+        mockMvc.perform(get("/api/v1/customers/{id}", ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.name").value(customer.getName()))
+                .andExpect(jsonPath("$.email").value(customer.getEmail()))
+                .andExpect(jsonPath("$.region").value(customer.getRegion()))
+                .andExpect(jsonPath("$.phoneNumber").value(customer.getPhoneNumber()))
+                .andExpect(jsonPath("$.deviceTypes").isArray());
+
         verify(customerService, times(1)).getCustomerDetailsById(ID);
     }
 
     @Test
+    @SneakyThrows
     void shouldThrowsCustomerNotFoundException() {
+        ProblemDetail problemDetail =
+                ProblemDetail.forStatusAndDetail(NOT_FOUND, String.format(CUSTOMER_NOT_FOUND_MESSAGE, ID));
+
+        problemDetail.setType(URI.create("customer-not-found"));
+        problemDetail.setTitle("Customer Not Found");
+
         doThrow(new CustomerNotFoundException(ID))
                 .when(customerService).getCustomerDetailsById(ID);
+
+        mockMvc.perform(get("/api/v1/customers/{id}", ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(content().json(objectMapper.writeValueAsString(problemDetail)));
 
         assertThrows(CustomerNotFoundException.class, () -> {
             customerController.getCustomerById(ID);
         });
-        verify(customerService, times(1)).getCustomerDetailsById(ID);
+
+        verify(customerService, times(2)).getCustomerDetailsById(ID);
+
+
+
+
     }
 
 }

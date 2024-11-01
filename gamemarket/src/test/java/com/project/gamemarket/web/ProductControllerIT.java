@@ -10,7 +10,6 @@ import com.project.gamemarket.dto.product.ProductDetailsListDto;
 import com.project.gamemarket.objects.BuildProducts;
 import com.project.gamemarket.service.ProductService;
 import com.project.gamemarket.service.mapper.ProductMapper;
-import jakarta.validation.ConstraintViolationException;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -23,12 +22,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.*;
 import org.springframework.test.web.servlet.MockMvc;
 
-
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.http.HttpStatus.*;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -59,28 +55,46 @@ public class ProductControllerIT {
 
 
     @Test
+    @SneakyThrows
     void shouldCreateProduct(){
-        ProductDetails productDetails = productMapper.toProductDetails(buildProducts.buildProductDetailsDtoMock());
+        ProductDetailsDto productDetailsDto = buildProducts.buildProductDetailsDtoMock();
 
-        when(productService.addProduct(ArgumentMatchers.any(ProductDetails.class))).thenReturn(productDetails);
+        when(productService.addProduct(any())).thenReturn(productMapper.toProductDetails(productDetailsDto));
 
-        ResponseEntity<ProductDetailsDto> response = productController.createProduct(buildProducts.buildProductDetailsDtoMock());
+        mockMvc.perform(post("/api/v1/products")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(productDetailsDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value(productDetailsDto.getTitle()))
+                .andExpect(jsonPath("$.shortDescription").value(productDetailsDto.getShortDescription()))
+                .andExpect(jsonPath("$.price").value(productDetailsDto.getPrice()))
+                .andExpect(jsonPath("$.developer").value(productDetailsDto.getDeveloper()))
+                .andExpect(jsonPath("$.deviceTypes").isArray())
+                .andExpect(jsonPath("$.genres").isArray());
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(buildProducts.buildProductDetailsDtoMock(),response.getBody());
         verify(productService, times(1)).addProduct(ArgumentMatchers.any(ProductDetails.class));
 
     }
 
     @Test
-    void shouldThrowCustomValidationExceptionCreateProduct(){
+    @SneakyThrows
+    void shouldThrowCustomValidationExceptionCreateProduct() {
+        ProductDetailsDto invalidProductDetailsDto = productMapper.toProductDetailsDto(buildProducts.buildThrowCustomValidationExceptionProductDetailsMock());
 
-        ConstraintViolationException exception =
-                assertThrows(ConstraintViolationException.class,
-                        () -> productController.createProduct(productMapper.toProductDetailsDto(buildProducts.buildThrowCustomValidationExceptionProductDetailsMock())));
-
-        assertTrue(exception.getMessage().contains("The developer is on the banned list. You cannot proceed with this project."));
-
+        mockMvc.perform(post("/api/v1/products")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(invalidProductDetailsDto)))
+                .andExpect(status().isBadRequest())
+                        .andExpect(jsonPath("$.type").value("urn:problem-type:validation-error"))
+                        .andExpect(jsonPath("$.title").value("Field Validation Exception"))
+                        .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
+                        .andExpect(jsonPath("$.detail").value("Request validation failed"))
+                        .andExpect(jsonPath("$.invalidParams", hasSize(greaterThan(0))))
+                        .andExpect(jsonPath("$.invalidParams[*].fieldName")
+                                .value(containsInAnyOrder("developer")))
+                        .andExpect(jsonPath("$.invalidParams[*].reason").exists());
     }
 
     @Test
@@ -103,23 +117,34 @@ public class ProductControllerIT {
     }
 
     @Test
+    @SneakyThrows
     void shouldDeleteProductById() {
+        long productId = 1L;
 
-        ResponseEntity<ProductDetailsDto> response = productController.deleteProductById(anyLong());
-        assertEquals(NO_CONTENT, response.getStatusCode());
-        verify(productService, times(1)).deleteProduct(anyLong());
+        doNothing().when(productService).deleteProduct(productId);
+        
+        mockMvc.perform(delete("/api/v1/products/{id}", productId))
+                .andExpect(status().isNoContent());
+
+        verify(productService, times(1)).deleteProduct(productId);
     }
 
     @Test
+    @SneakyThrows
     void shouldGetAllProducts() {
 
         when(productService.getProducts()).thenReturn(buildProducts.buildProductDetailsListMock());
 
-        ResponseEntity<ProductDetailsListDto> response = productController.getProducts();
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(productMapper.toProductDetailsListDto(buildProducts.buildProductDetailsListMock()),response.getBody());
+        mockMvc.perform(get("/api/v1/products")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.productDetailsEntries", hasSize(buildProducts.buildProductDetailsListMock().size())))
+                .andExpect(jsonPath("$.productDetailsEntries[*].id").exists())
+                .andExpect(jsonPath("$.productDetailsEntries[*].title").exists())
+                .andExpect(jsonPath("$.productDetailsEntries[*].price").exists());
+
         verify(productService, times(1)).getProducts();
     }
-
 
 }

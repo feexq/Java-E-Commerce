@@ -41,4 +41,15 @@ public class BuildCustomers {
                 .build();
     }
 
+    public CustomerDetails buildCustomInvalidCustomerDetails() {
+        return CustomerDetails.builder()
+                .id(1L)
+                .name("Jack Spring")
+                .email("jacksrping@gmail.com")
+                .phoneNumber("+1234567890")
+                .region("Russian")
+                .deviceTypes(List.of(DeviceType.CONSOLE, DeviceType.PC))
+                .build();
+    }
+
 }
