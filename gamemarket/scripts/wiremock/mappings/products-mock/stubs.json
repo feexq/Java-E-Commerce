@@ -1,0 +1,50 @@
+{
+  "mappings": [
+    {
+      "id": "1e636f65-59a8-463b-10dd-803247a0b1bd",
+      "name": "Witcher 2",
+      "request": {
+        "url": "/product-service/v1/10",
+        "method": "GET"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "id": 10,
+          "title": "Witcher 2",
+          "shortDescription": "Geralt defends Henselt from two witcher assassins, and assists Dethmold, a mage and royal advisor to King Henselt, in a necromancy ritual to discover they are in league with Síle de Tansarville, who has already fled to Loc Muinne with fellow sorceress Philippa Eilhart and entranced rebel leader Saskia in tow.",
+          "price": 10.0,
+          "developer": "CD Projekt Red",
+          "deviceTypes": ["CONSOLE", "PC"],
+          "genres": ["RPG", "MYTHOLOGY"]
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "id": "1e636f65-59a8-463b-10dd-803247a0a3da",
+      "name": "Dark Souls II",
+      "request": {
+        "url": "/product-service/v1/11",
+        "method": "GET"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "id": 11,
+          "title": "Dark Souls II",
+          "shortDescription": "Experience a dark fantasy world filled with challenging enemies and deep lore. As the Ashen One, players must battle formidable foes to rekindle the flames and restore the world.",
+          "price": 21.0,
+          "developer": "FromSoftware",
+          "deviceTypes": ["CONSOLE", "PC"],
+          "genres": ["ACTION", "RPG"]
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    }
+  ]
+}

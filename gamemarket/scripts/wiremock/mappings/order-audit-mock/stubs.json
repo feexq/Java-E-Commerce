@@ -1,0 +1,22 @@
+{
+  "mappings": [
+    {
+      "id": "1758c856-7230-4142-8840-bfc7ce114a0a",
+      "name": "Order-Audit Create Order",
+      "request": {
+        "url": "/order-audit/v1/orders",
+        "method": "POST"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "id": "20705c55-726a-4f45-ac28-1e06c0a202fb",
+          "status": "SUCCESS"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    }
+  ]
+}
