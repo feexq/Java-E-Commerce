@@ -20,8 +20,6 @@ import java.util.List;
 @GroupSequence({ CustomerDetailsDto.class, ExtendedValidation.class})
 public class CustomerDetailsDto {
 
-//    Integer age;
-
     @NotBlank(message = "Name is mandatory")
     @Size(max = 99, message = "Name cannot exceed 99 characters")
     String name;

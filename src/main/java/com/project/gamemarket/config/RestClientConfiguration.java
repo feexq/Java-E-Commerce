@@ -21,13 +21,6 @@ public class RestClientConfiguration {
         this.responseTimeout = responseTimeout;
     }
 
-//    @Bean("paymentRestClient")
-//    public RestClient PaymentRestClient() {
-//        return RestClient.builder()
-//            .requestFactory(getClientHttpRequestFactory(responseTimeout))
-//            .build();
-//    }
-//
     @Bean("keyRestClient")
     public RestClient ProductRestClient() {
         return RestClient.builder()
