@@ -28,13 +28,13 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            ~/gamemarket/.gradle/caches
-            ~/gamemarket/.gradle/wrapper
+            ~/.gradle/caches
+            ~/.gradle/wrapper
           key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle.properties', '**/gradle-wrapper.properties') }}
           restore-keys: |
             gradle-
       - name: Grant execute permission for Gradlew
-        run: chmod +x ./gamemarket/gradlew
+        run: chmod +x ./gradlew
 
       # Run Gradle build and tests with coverage
       - name: Build with Gradle
@@ -48,4 +48,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: test-coverage-report
-          path: gamemarket/build/reports/coverage/index.html
+          path: /build/reports/coverage/index.html

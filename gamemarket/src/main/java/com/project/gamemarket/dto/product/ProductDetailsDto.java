@@ -1,6 +1,5 @@
 package com.project.gamemarket.dto.product;
 
-import com.project.gamemarket.common.GenreType;
 import com.project.gamemarket.dto.validation.ExtendedValidation;
 import com.project.gamemarket.dto.validation.annotation.ValidDeveloperBan;
 import com.project.gamemarket.dto.validation.annotation.ValidDevice;

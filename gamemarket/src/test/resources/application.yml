@@ -3,9 +3,6 @@ spring:
     name: game-market
 
 application:
-  payment-service:
-    base-path: http://localhost:8081
-    payments: ${application.payment-service.base-path}/payment-service/v1/payments
   key-service:
     base-path: http://localhost:8081
     keys: ${application.key-service.base-path}/key-service/v1/activate

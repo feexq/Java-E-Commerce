@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.gamemarket.domain.ProductDetails;
 
 import com.project.gamemarket.dto.product.ProductDetailsDto;
-import com.project.gamemarket.dto.product.ProductDetailsListDto;
 import com.project.gamemarket.objects.BuildProducts;
 import com.project.gamemarket.service.ProductService;
 import com.project.gamemarket.service.mapper.ProductMapper;

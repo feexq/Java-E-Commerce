@@ -9,7 +9,6 @@ import com.project.gamemarket.dto.key.KeyActivationResponseDto;
 import com.project.gamemarket.service.exception.KeyActivationFailedProcessActivation;
 import com.project.gamemarket.service.exception.ProductNotFoundException;
 import com.project.gamemarket.service.impl.ProductServiceImpl;
-import com.project.gamemarket.service.mapper.KeyMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

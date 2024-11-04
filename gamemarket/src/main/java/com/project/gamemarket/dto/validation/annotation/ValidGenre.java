@@ -1,6 +1,5 @@
 package com.project.gamemarket.dto.validation.annotation;
 
-import com.project.gamemarket.dto.validation.validators.DeveloperValidator;
 import com.project.gamemarket.dto.validation.validators.GenreValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

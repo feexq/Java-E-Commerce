@@ -1,6 +1,5 @@
 package com.project.gamemarket.dto.customer;
 
-import com.project.gamemarket.common.DeviceType;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
