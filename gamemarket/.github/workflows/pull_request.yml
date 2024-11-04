@@ -35,7 +35,6 @@ jobs:
             gradle-
       - name: Grant execute permission for Gradlew
         run: chmod +x ./gradlew
-        working-directory: gamemarket
 
       # Run Gradle build and tests with coverage
       - name: Build with Gradle
