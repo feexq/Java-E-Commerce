@@ -1,0 +1,23 @@
+{
+  "mappings": [
+    {
+      "id": "0cbe9606-46c4-442f-8a96-f841d0bc1baa",
+      "name": "Key Activation",
+      "request": {
+        "url": "/key-service/v1/activate",
+        "method": "POST"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "key": "55f9cbfe-04a9-4527-b86e-dc0510a4e29d",
+          "status": "EXPIRED",
+          "productId": "1"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    }
+  ]
+}
