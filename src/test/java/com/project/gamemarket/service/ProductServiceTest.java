@@ -6,6 +6,7 @@ import com.project.gamemarket.common.KeyActivationStatus;
 import com.project.gamemarket.domain.ProductDetails;
 import com.project.gamemarket.dto.key.KeyActivationRequestDto;
 import com.project.gamemarket.dto.key.KeyActivationResponseDto;
+import com.project.gamemarket.featuretoggle.FeatureToggleService;
 import com.project.gamemarket.service.exception.KeyActivationFailedProcessActivation;
 import com.project.gamemarket.service.exception.ProductNotFoundException;
 import com.project.gamemarket.service.impl.ProductServiceImpl;
@@ -33,6 +34,9 @@ public class ProductServiceTest {
 
     @Autowired
     private ProductService productService;
+
+    @MockBean
+    private FeatureToggleService featureToggleService;
 
     @MockBean
     private KeyActivationService keyActivationService;
