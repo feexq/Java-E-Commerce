@@ -6,3 +6,7 @@ application:
   key-service:
     base-path: http://localhost:8081
     keys: ${application.key-service.base-path}/key-service/v1/activate
+  feature:
+    toggles:
+      key-activation: false
+      summer-sale: false
