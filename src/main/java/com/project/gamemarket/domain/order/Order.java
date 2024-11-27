@@ -14,6 +14,6 @@ public class Order {
     UUID transactionId;
     List<OrderEntry> entries;
     String cartId;
-    String customerId;
+    UUID customerId;
     Double total;
 }

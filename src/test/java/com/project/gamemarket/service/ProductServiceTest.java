@@ -1,7 +1,7 @@
 package com.project.gamemarket.service;
 
 import com.project.gamemarket.common.DeviceType;
-import com.project.gamemarket.common.GenreType;
+import com.project.gamemarket.common.CategoryType;
 import com.project.gamemarket.common.KeyActivationStatus;
 import com.project.gamemarket.domain.ProductDetails;
 import com.project.gamemarket.dto.key.KeyActivationRequestDto;
@@ -128,7 +128,7 @@ public class ProductServiceTest {
                 .price(30.0)
                 .developer("CD Projekt Red")
                 .deviceTypes(List.of(DeviceType.CONSOLE, DeviceType.PC))
-                .genres(List.of(GenreType.RPG,GenreType.MYTHOLOGY))
+                .genres(List.of(CategoryType.RPG, CategoryType.MYTHOLOGY))
                 .build();
     }
 

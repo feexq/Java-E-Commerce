@@ -11,7 +11,6 @@ import java.util.List;
 public class CustomerDetails {
 
     Long id;
-//    Integer age;
     String name;
     String phoneNumber;
     String email;

@@ -1,6 +1,6 @@
 package com.project.gamemarket.dto.validation.validators;
 
-import com.project.gamemarket.common.GenreType;
+import com.project.gamemarket.common.CategoryType;
 import com.project.gamemarket.dto.validation.annotation.ValidGenre;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
@@ -13,7 +13,7 @@ public class GenreValidator implements ConstraintValidator<ValidGenre, List<Stri
     public boolean isValid(List<String> values, ConstraintValidatorContext context) {
         try {
         for (String value : values) {
-            GenreType.fromName(value);
+            CategoryType.fromName(value);
         }
         return true;
         } catch (IllegalArgumentException e) {

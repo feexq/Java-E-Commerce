@@ -1,0 +1,82 @@
+databaseChangeLog:
+  - changeSet:
+      id: lab-3-customers
+      author: feex
+      runOnChange: true
+      changes:
+        - createTable:
+            tableName: customer
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: phone_number
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: region
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: customer_reference
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+        - createSequence:
+            sequenceName: customer_id_seq
+            incrementBy: 50
+
+        - addUniqueConstraint:
+            tableName: customer
+            columnNames: customer_reference
+            constraintName: uq_customer_reference
+        - addUniqueConstraint:
+            tableName: customer
+            columnNames: email
+            constraintName: uq_customer_email
+        - addUniqueConstraint:
+            tableName: customer
+            columnNames: phone_number
+            constraintName: uq_customer_phone_number
+
+        - createTable:
+            tableName: customer_device_type
+            columns:
+              - column:
+                  name: customer_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: device_type
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+
+        - addPrimaryKey:
+            tableName: customer_device_type
+            columnNames: customer_id, device_type
+
+        - addForeignKeyConstraint:
+            baseTableName: customer_device_type
+            baseColumnNames: customer_id
+            referencedTableName: customer
+            referencedColumnNames: id
+            constraintName: fk_customer_id

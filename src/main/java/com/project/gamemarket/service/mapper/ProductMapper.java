@@ -1,11 +1,12 @@
 package com.project.gamemarket.service.mapper;
 
 import com.project.gamemarket.common.DeviceType;
-import com.project.gamemarket.common.GenreType;
+import com.project.gamemarket.common.CategoryType;
 import com.project.gamemarket.domain.ProductDetails;
 import com.project.gamemarket.dto.product.ProductDetailsDto;
 import com.project.gamemarket.dto.product.ProductDetailsEntry;
 import com.project.gamemarket.dto.product.ProductDetailsListDto;
+import com.project.gamemarket.repository.entity.ProductEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -64,7 +65,7 @@ public interface ProductMapper {
     }
 
     @Named("toGenresString")
-    default List<String> toGenresString(List<GenreType> genres){
+    default List<String> toGenresString(List<CategoryType> genres){
         return genres.stream().map(genre -> genre.name().toLowerCase()).toList();
     }
 
@@ -74,8 +75,18 @@ public interface ProductMapper {
     }
 
     @Named("toGenreTypesFromString")
-    default List<GenreType> toGenresStringFromString(List<String> genres) {
-        return genres.stream().map(GenreType::fromName).toList();
+    default List<CategoryType> toGenresStringFromString(List<String> genres) {
+        return genres.stream().map(CategoryType::fromName).toList();
     }
+
+    @Mapping(target = "device_type", source = "deviceTypes")
+    @Mapping(target = "category_genre", source = "genres")
+    ProductEntity toProductEntity(ProductDetails productDetails);
+
+    @Mapping(source = "device_type", target = "deviceTypes")
+    @Mapping(source = "category_genre", target = "genres")
+    ProductDetails toProductDetails(ProductEntity productEntity);
+
+    List<ProductDetails> toProductDetailsList(List<ProductEntity> productEntities);
 }
 

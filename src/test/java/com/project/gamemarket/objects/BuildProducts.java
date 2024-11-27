@@ -1,7 +1,7 @@
 package com.project.gamemarket.objects;
 
 import com.project.gamemarket.common.DeviceType;
-import com.project.gamemarket.common.GenreType;
+import com.project.gamemarket.common.CategoryType;
 import com.project.gamemarket.domain.ProductDetails;
 import com.project.gamemarket.dto.product.ProductDetailsDto;
 import org.springframework.stereotype.Component;
@@ -22,7 +22,7 @@ public class BuildProducts {
                 .price(30.0)
                 .developer("CD Projekt Red")
                 .deviceTypes(List.of(DeviceType.CONSOLE, DeviceType.PC))
-                .genres(List.of(GenreType.RPG,GenreType.MYTHOLOGY))
+                .genres(List.of(CategoryType.RPG, CategoryType.MYTHOLOGY))
                 .build();
     }
 
@@ -45,7 +45,7 @@ public class BuildProducts {
                 .price(30.0)
                 .developer("1C")
                 .deviceTypes(List.of(DeviceType.CONSOLE, DeviceType.PC))
-                .genres(List.of(GenreType.RPG,GenreType.MYTHOLOGY))
+                .genres(List.of(CategoryType.RPG, CategoryType.MYTHOLOGY))
                 .build();
     }
 
@@ -70,7 +70,7 @@ public class BuildProducts {
                         .price(30.0)
                         .developer("CD Projekt Red")
                         .deviceTypes(List.of(DeviceType.CONSOLE, DeviceType.PC))
-                        .genres(List.of(GenreType.RPG,GenreType.MYTHOLOGY))
+                        .genres(List.of(CategoryType.RPG, CategoryType.MYTHOLOGY))
                         .build(),
                 ProductDetails.builder()
                         .id(2L)
@@ -79,7 +79,7 @@ public class BuildProducts {
                         .price(40.0)
                         .developer("Santa Monica Studio")
                         .deviceTypes(List.of(DeviceType.CONSOLE, DeviceType.PC))
-                        .genres(List.of(GenreType.ACTION, GenreType.ADVENTURE))
+                        .genres(List.of(CategoryType.ACTION, CategoryType.ADVENTURE))
                         .build(),
                 ProductDetails.builder()
                         .id(3L)
@@ -88,7 +88,7 @@ public class BuildProducts {
                         .price(35.0)
                         .developer("FromSoftware")
                         .deviceTypes(List.of(DeviceType.CONSOLE, DeviceType.PC))
-                        .genres(List.of(GenreType.ACTION, GenreType.RPG))
+                        .genres(List.of(CategoryType.ACTION, CategoryType.RPG))
                         .build(),
                 ProductDetails.builder()
                         .id(4L)
@@ -97,7 +97,7 @@ public class BuildProducts {
                         .price(45.0)
                         .developer("Guerrilla Games")
                         .deviceTypes(List.of(DeviceType.CONSOLE, DeviceType.PC))
-                        .genres(List.of(GenreType.ACTION, GenreType.RPG))
+                        .genres(List.of(CategoryType.ACTION, CategoryType.RPG))
                         .build(),
                 ProductDetails.builder()
                         .id(5L)
@@ -106,7 +106,7 @@ public class BuildProducts {
                         .price(60.0)
                         .developer("Nintendo")
                         .deviceTypes(List.of(DeviceType.NINTENDO_SWITCH))
-                        .genres(List.of(GenreType.ACTION, GenreType.ADVENTURE))
+                        .genres(List.of(CategoryType.ACTION, CategoryType.ADVENTURE))
                         .build(),
                 ProductDetails.builder()
                         .id(6L)
@@ -115,7 +115,7 @@ public class BuildProducts {
                         .price(50.0)
                         .developer("CD Projekt Red")
                         .deviceTypes(List.of(DeviceType.CONSOLE, DeviceType.PC))
-                        .genres(List.of(GenreType.ACTION, GenreType.RPG))
+                        .genres(List.of(CategoryType.ACTION, CategoryType.RPG))
                         .build());
     }
 }
