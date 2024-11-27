@@ -5,7 +5,12 @@ package com.project.gamemarket.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.gamemarket.domain.ProductDetails;
 
+import com.project.gamemarket.dto.key.KeyActivationRequestDto;
 import com.project.gamemarket.dto.product.ProductDetailsDto;
+import com.project.gamemarket.featuretoggle.FeatureExtension;
+import com.project.gamemarket.featuretoggle.FeatureToggles;
+import com.project.gamemarket.featuretoggle.anotation.DisableFeature;
+import com.project.gamemarket.featuretoggle.anotation.EnableFeature;
 import com.project.gamemarket.objects.BuildProducts;
 import com.project.gamemarket.service.ProductService;
 import com.project.gamemarket.service.mapper.ProductMapper;
@@ -13,6 +18,7 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -21,8 +27,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.*;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.net.URI;
+
+import static com.project.gamemarket.service.exception.FeatureNotEnabledException.FEATURE_NOT_ENABLED_MESSAGE;
 import static org.hamcrest.Matchers.*;
 
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -31,6 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @DisplayName("Product Controller IT")
 @Tag("product-service")
+@ExtendWith(FeatureExtension.class)
 public class ProductControllerIT {
 
     @MockBean
@@ -161,6 +172,29 @@ public class ProductControllerIT {
                         + "\"deviceTypes\": [\"console\", \"pc\"],"
                         + "\"genres\": [\"rpg\", \"mythology\"]"
                         + "}"));
+    }
+
+    @Test
+    @SneakyThrows
+    @EnableFeature(FeatureToggles.SUMMER_SALE)
+    void shouldFindProductBySale() {
+        mockMvc.perform(get("/api/v1/products/sale"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @SneakyThrows
+    @DisableFeature(FeatureToggles.SUMMER_SALE)
+    void shouldThrowFeatureNotEnableException() {
+        ProblemDetail problemDetail =
+                ProblemDetail.forStatusAndDetail(NOT_FOUND, String.format(FEATURE_NOT_ENABLED_MESSAGE, FeatureToggles.SUMMER_SALE.getFeatureName()));
+
+        problemDetail.setType(URI.create("feature-disabled"));
+        problemDetail.setTitle("Feature is disabled");
+
+        mockMvc.perform(get("/api/v1/products/sale"))
+                .andExpect(status().isNotFound())
+                .andExpect(content().json(objectMapper.writeValueAsString(problemDetail)));
     }
 
 }

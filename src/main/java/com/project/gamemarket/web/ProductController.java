@@ -3,6 +3,8 @@ package com.project.gamemarket.web;
 import com.project.gamemarket.domain.ProductDetails;
 import com.project.gamemarket.dto.product.ProductDetailsDto;
 import com.project.gamemarket.dto.product.ProductDetailsListDto;
+import com.project.gamemarket.featuretoggle.FeatureToggles;
+import com.project.gamemarket.featuretoggle.annotation.FeatureToggle;
 import com.project.gamemarket.service.ProductService;
 import com.project.gamemarket.service.mapper.KeyMapper;
 import com.project.gamemarket.service.mapper.ProductMapper;
@@ -56,11 +58,19 @@ public class ProductController {
     }
 
     @PostMapping("/{customerReference}/activate")
+    @FeatureToggle(FeatureToggles.KEY_ACTIVATION)
     public ResponseEntity<ProductDetailsDto> getProductByKeyActivation(
             @PathVariable("customerReference") String customerReference,
             @RequestBody @NotBlank String key) {
         log.info("Getting product for key: {}", key);
         ProductDetails response = productService.getProductByKeyActivation(keyMapper.toKeyContext(customerReference,key));
         return ResponseEntity.ok(productMapper.toProductDetailsDto(response));
+    }
+
+    @GetMapping("/sale")
+    @FeatureToggle(FeatureToggles.SUMMER_SALE)
+    public ResponseEntity<ProductDetailsListDto> getProductByHoliday() {
+        log.info("Getting product for sale: {}", FeatureToggles.SUMMER_SALE.getFeatureName());
+        return ResponseEntity.ok(productMapper.toProductDetailsListDto(productService.getSaleProductByHoliday()));
     }
 }

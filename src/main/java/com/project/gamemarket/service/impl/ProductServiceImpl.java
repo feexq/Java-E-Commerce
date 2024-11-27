@@ -6,6 +6,8 @@ import com.project.gamemarket.common.KeyActivationStatus;
 import com.project.gamemarket.domain.ProductDetails;
 import com.project.gamemarket.dto.key.KeyActivationRequestDto;
 import com.project.gamemarket.dto.key.KeyActivationResponseDto;
+import com.project.gamemarket.featuretoggle.FeatureToggleService;
+import com.project.gamemarket.featuretoggle.FeatureToggles;
 import com.project.gamemarket.service.KeyActivationService;
 import com.project.gamemarket.service.ProductService;
 import com.project.gamemarket.service.exception.KeyActivationFailedProcessActivation;
@@ -22,6 +24,7 @@ import java.util.*;
 public class ProductServiceImpl implements ProductService {
 
     private final KeyActivationService keyActivationService;
+    private final FeatureToggleService featureToggleService;
 
     private final Long ID = new Random().nextLong();
 
@@ -67,6 +70,31 @@ public class ProductServiceImpl implements ProductService {
         }
 
         return getProductById(Long.parseLong(keyActivationResponseDto.getProductId()));
+    }
+
+    @Override
+    public List<ProductDetails> getSaleProductByHoliday() {
+        double discountPercentage = 0.0;
+        if (featureToggleService.isFeatureEnabled(FeatureToggles.HALLOWEEN.getFeatureName())) {
+            discountPercentage = 10.0;
+        } else if (featureToggleService.isFeatureEnabled(FeatureToggles.SUMMER_SALE.getFeatureName())) {
+            discountPercentage = 15.0;
+        }
+        return getSaleProducts(discountPercentage);
+    }
+
+    public List<ProductDetails> getSaleProducts(double discountPercentage) {
+        return buildProductDetailsMock().stream()
+                .map(product -> ProductDetails.builder()
+                        .id(product.getId())
+                        .title(product.getTitle())
+                        .shortDescription(product.getShortDescription())
+                        .price(product.getPrice() * (1 - discountPercentage / 100))
+                        .developer(product.getDeveloper())
+                        .deviceTypes(product.getDeviceTypes())
+                        .genres(product.getGenres())
+                        .build())
+                .toList();
     }
 
     @Override
