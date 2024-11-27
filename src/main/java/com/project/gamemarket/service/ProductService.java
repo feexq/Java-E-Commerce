@@ -18,4 +18,6 @@ public interface ProductService {
     List<ProductDetails> getProducts();
 
     ProductDetails getProductByKeyActivation(KeyActivationRequestDto context);
+
+    List<ProductDetails> getSaleProductByHoliday();
 }
