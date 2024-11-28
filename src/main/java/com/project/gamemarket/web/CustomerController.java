@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @Validated(ExtendedValidation.class)
 @RequestMapping("/api/v1/customers")
@@ -30,12 +32,19 @@ public class CustomerController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CustomerDetailsDto> getCustomerById(@PathVariable Long id) {
-        return ResponseEntity.ok(customDetailsMapper.toCustomerDetailsDto(customerService.getCustomerDetailsById(id)));
+    public ResponseEntity<CustomerDetailsDto> getCustomerById(@PathVariable UUID id) {
+        return ResponseEntity.ok(customDetailsMapper.toCustomerDetailsDto(customerService.getCustomerByReference(id)));
     }
 
     @PostMapping
     public ResponseEntity<CustomerDetailsDto> createCustomer(@RequestBody @Valid CustomerDetailsDto customerDetailsDto){
-        return ResponseEntity.ok(customerDetailsDto);
+        return ResponseEntity.ok(customDetailsMapper.toCustomerDetailsDto(customerService.createCustomer(customDetailsMapper.toCustomerDetails(customerDetailsDto))));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<CustomerDetailsDto> deleteCustomer(@PathVariable Long id) {
+        customerService.deleteCustomer(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }

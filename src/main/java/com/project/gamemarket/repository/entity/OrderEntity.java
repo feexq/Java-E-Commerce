@@ -1,6 +1,7 @@
 package com.project.gamemarket.repository.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,13 +28,24 @@ public class OrderEntity {
     String cart_id;
 
     Double total_price;
-    String payment_id;
+    String payment_reference;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "customer", nullable = false)
+    @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id", nullable = false)
     CustomerEntity customer;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    @OneToMany(mappedBy = "order_id", cascade = {CascadeType.PERSIST}, orphanRemoval = true, fetch = FetchType.LAZY)
     List<OrderEntryEntity> order_entries;
+
+    @Override
+    public String toString() {
+        return "OrderEntity{" +
+                "cartId='" + cart_id + '\'' +
+                ", totalPrice=" + total_price +
+                ", customerReference=" + (customer != null ? customer.getCustomerReference() : "null") +
+                ", orderEntries=" + order_entries +
+                '}';
+    }
+
 
 }

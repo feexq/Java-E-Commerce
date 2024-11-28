@@ -1,9 +1,6 @@
 package com.project.gamemarket.web;
 
-import com.project.gamemarket.service.exception.CustomerNotFoundException;
-import com.project.gamemarket.service.exception.FeatureNotEnabledException;
-import com.project.gamemarket.service.exception.KeyActivationFailedProcessActivation;
-import com.project.gamemarket.service.exception.ProductNotFoundException;
+import com.project.gamemarket.service.exception.*;
 import com.project.gamemarket.web.exception.ParamsViolationDetails;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -22,8 +19,7 @@ import java.util.List;
 
 import static com.project.gamemarket.util.ValidationDetailsUtils.getValidationErrorsProblemDetail;
 import static java.net.URI.create;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.ProblemDetail.forStatusAndDetail;
 
 @Slf4j
@@ -51,12 +47,42 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(ProductNotFoundException.class)
-    ProblemDetail handleCustomerNotFoundException(ProductNotFoundException ex) {
+    ProblemDetail handleProductNotFoundException(ProductNotFoundException ex) {
         log.error("ProductNotFoundException");
         ProblemDetail problemDetail = forStatusAndDetail(NOT_FOUND, ex.getMessage());
         problemDetail.setStatus(NOT_FOUND);
         problemDetail.setType(create("product-not-found"));
         problemDetail.setTitle("Product Not Found");
+        return problemDetail;
+    }
+
+    @ExceptionHandler(CustomerAlreadyExistsException.class)
+    ProblemDetail handelCustomerAlreadyExistsException(CustomerAlreadyExistsException ex) {
+        log.error("CustomerAlreadyExistsException");
+        ProblemDetail problemDetail = forStatusAndDetail(CONFLICT, ex.getMessage());
+        problemDetail.setStatus(CONFLICT);
+        problemDetail.setType(create("customer-already-exists"));
+        problemDetail.setTitle("Customer Already Exists");
+        return problemDetail;
+    }
+
+    @ExceptionHandler(OrderNotFoundException.class)
+    ProblemDetail handleOrderNotFoundException(OrderNotFoundException ex) {
+        log.error("OrderNotFoundException");
+        ProblemDetail problemDetail = forStatusAndDetail(NOT_FOUND, ex.getMessage());
+        problemDetail.setStatus(NOT_FOUND);
+        problemDetail.setType(create("order-not-found"));
+        problemDetail.setTitle("Order Not Found");
+        return problemDetail;
+    }
+
+    @ExceptionHandler(TitleAlreadyExistsException.class)
+    ProblemDetail handleProductTitleAlreadyExistsException(TitleAlreadyExistsException ex) {
+        log.error("TitleAlreadyExistsException");
+        ProblemDetail problemDetail = forStatusAndDetail(CONFLICT, ex.getMessage());
+        problemDetail.setStatus(BAD_REQUEST);
+        problemDetail.setType(create("title-already-exists"));
+        problemDetail.setTitle("Title Already Exists");
         return problemDetail;
     }
 

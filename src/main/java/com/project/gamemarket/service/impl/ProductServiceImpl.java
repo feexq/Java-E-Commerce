@@ -7,10 +7,12 @@ import com.project.gamemarket.dto.key.KeyActivationResponseDto;
 import com.project.gamemarket.featuretoggle.FeatureToggleService;
 import com.project.gamemarket.featuretoggle.FeatureToggles;
 import com.project.gamemarket.repository.ProductRepository;
+import com.project.gamemarket.repository.entity.ProductEntity;
 import com.project.gamemarket.service.KeyActivationService;
 import com.project.gamemarket.service.ProductService;
 import com.project.gamemarket.service.exception.KeyActivationFailedProcessActivation;
 import com.project.gamemarket.service.exception.ProductNotFoundException;
+import com.project.gamemarket.service.exception.TitleAlreadyExistsException;
 import com.project.gamemarket.service.mapper.ProductMapper;
 import jakarta.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
@@ -33,8 +35,11 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public ProductDetails addProduct(ProductDetails product) {
+        if (productRepository.existsByTitleIgnoreCase(product.getTitle())) {
+            throw new TitleAlreadyExistsException(product.getTitle());
+        }
         try {
-            return productMapper.toProductDetails(productRepository.save(productMapper.toProductEntity(product)));
+            return productMapper.toProductDetails(productRepository.save(productMapper.toProductEntity(product.toBuilder().title(product.getTitle().toLowerCase()).build())));
         } catch (Exception e) {
             log.error("Error while adding product");
             throw new PersistenceException(e);
@@ -44,18 +49,29 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public ProductDetails updateProduct(ProductDetails product) {
-        return productMapper.toProductDetails(
-                productRepository.save(
-                        productMapper.toProductEntity(
-                                getProductById(product.getId()).toBuilder()
-                                .id(product.getId())
-                                .title(product.getTitle())
-                                .shortDescription(product.getShortDescription())
-                                .price(product.getPrice())
-                                .developer(product.getDeveloper())
-                                .deviceTypes(product.getDeviceTypes())
-                                .genres(product.getGenres())
-                                .build())));
+        ProductEntity existingProduct = productRepository.findById(product.getId())
+                .orElseThrow(() -> new ProductNotFoundException(product.getId()));
+
+        if (!existingProduct.getTitle().equalsIgnoreCase(product.getTitle())) {
+            if (productRepository.existsByTitleIgnoreCase(product.getTitle())) {
+                throw new TitleAlreadyExistsException(product.getTitle());
+            }
+        }
+
+        existingProduct = existingProduct.toBuilder().title(product.getTitle())
+                .shortDescription(product.getShortDescription())
+                .price(product.getPrice())
+                .developer(product.getDeveloper())
+                .device_type(product.getDeviceTypes())
+                .category_genre(product.getGenres())
+                .build();
+
+        try {
+            return productMapper.toProductDetails(productRepository.save(existingProduct));
+        } catch (Exception e) {
+            log.error("Error while updating product");
+            throw new PersistenceException(e);
+        }
     }
 
     @Override
@@ -70,7 +86,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public ProductDetails getProductByKeyActivation(KeyActivationRequestDto context) {
         log.info("Getting product for with key: {}", context.getCustomerId());
         KeyActivationResponseDto keyActivationResponseDto = keyActivationService.processKeyActivation(context);
@@ -79,19 +95,15 @@ public class ProductServiceImpl implements ProductService {
             throw new KeyActivationFailedProcessActivation(keyActivationResponseDto.getKey().replace("\"", ""));
         }
         Long ID = Long.parseLong(keyActivationResponseDto.getProductId());
-        try {
-            return productMapper.toProductDetails(productRepository.findById(ID).orElseThrow(() -> {
-                log.error("Error while getting product with id {}", ID);
-                return new ProductNotFoundException(ID);
-            }));
-        } catch (Exception e) {
-            log.error("Error while getting product");
-            throw new PersistenceException(e);
-        }
+
+        return productMapper.toProductDetails(productRepository.findById(ID).orElseThrow(() -> {
+            log.error("Error while getting product with id {}", ID);
+            return new ProductNotFoundException(ID);
+        }));
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ProductDetails> getSaleProductByHoliday() {
         double discountPercentage = 0.0;
         if (featureToggleService.isFeatureEnabled(FeatureToggles.HALLOWEEN.getFeatureName())) {
@@ -102,7 +114,7 @@ public class ProductServiceImpl implements ProductService {
         return getSaleProducts(discountPercentage);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ProductDetails> getSaleProducts(double discountPercentage) {
         return productMapper.toProductDetailsList(productRepository.findAll()).stream()
                 .map(product -> ProductDetails.builder()
@@ -118,21 +130,15 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public ProductDetails getProductById(Long id) {
-        try {
-            return productMapper.toProductDetails(productRepository.findById(id).orElseThrow(() -> {
-                log.error("Error while getting product with id {}", id);
-                return new ProductNotFoundException(id);
-            }));
-        } catch (Exception e) {
-            log.error("Error while getting product");
-            throw new PersistenceException(e);
-        }
+        return productRepository.findById(id)
+                .map(productMapper::toProductDetails)
+                .orElseThrow(() -> new ProductNotFoundException(id));
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ProductDetails> getProducts() {
         return productMapper.toProductDetailsList(productRepository.findAll());
     }

@@ -30,9 +30,13 @@ public class OrderEntryEntity {
     @Column(name = "price", nullable = false)
     Double price;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "order",referencedColumnName = "id", nullable = false)
-    OrderEntity order;
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST})
+    @JoinColumn(name = "order_id",referencedColumnName = "id", nullable = false)
+    OrderEntity order_id;
 
+    @Override
+    public String toString() {
+        return "OrderEntryEntity [productEntity=" + productEntity + ", quantity=" + quantity + "]";
+    }
 
 }

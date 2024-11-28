@@ -24,12 +24,14 @@ public class ProductEntity {
     @SequenceGenerator(name = "product_id_seq", sequenceName = "product_id_seq")
     Long id;
 
-    @NaturalId
     @Column(nullable = false, unique = true)
     String title;
+
     @Column(name = "short_description")
     String shortDescription;
+
     Double price;
+
     String developer;
 
     @ElementCollection(targetClass = DeviceType.class, fetch = FetchType.EAGER)
@@ -43,5 +45,10 @@ public class ProductEntity {
             joinColumns = @JoinColumn(name = "product_id"))
     @Enumerated(EnumType.ORDINAL)
     List<CategoryType> category_genre;
+
+    @Override
+    public String toString() {
+        return "ProductEntity [title=" + title + "]";
+    }
 
 }

@@ -10,10 +10,10 @@ import java.util.UUID;
 @Builder(toBuilder = true)
 public class Order {
 
-    String orderId;
-    UUID transactionId;
+    Long id;
     List<OrderEntry> entries;
     String cartId;
+    String payment_reference;
     UUID customerId;
     Double total;
 }

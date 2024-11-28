@@ -9,7 +9,7 @@ import lombok.Value;
 public class OrderEntryDto {
 
     @NotNull(message = "Game name cannot be null")
-    String gameType;
+    String productEntity;
 
     @NotNull(message = "Quantity cannot be null")
     int quantity;

@@ -1,5 +1,6 @@
 package com.project.gamemarket.repository.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.project.gamemarket.common.DeviceType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -25,8 +26,10 @@ public class CustomerEntity {
     Long id;
 
     String name;
+
     @Column(unique = true, nullable = false)
     String phoneNumber;
+
     @Column(unique = true, nullable = false)
     String email;
     String region;
@@ -39,8 +42,9 @@ public class CustomerEntity {
     @CollectionTable(name = "customer_device_type",
             joinColumns = @JoinColumn(name = "customer_id"))
     @Enumerated(EnumType.ORDINAL)
-    List<DeviceType> deviceTypeList;
+    List<DeviceType> device_type;
 
     @OneToMany(mappedBy = "customer", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @JsonBackReference
     List<OrderEntity> orders;
 }
