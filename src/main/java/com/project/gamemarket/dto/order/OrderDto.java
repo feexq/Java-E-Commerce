@@ -14,6 +14,7 @@ public class OrderDto {
 
     List<OrderEntryDto> entries;
     String cartId;
+    String payment_reference;
     UUID customerId;
     Double total;
 

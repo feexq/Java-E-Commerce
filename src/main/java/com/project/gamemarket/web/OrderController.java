@@ -4,18 +4,13 @@ import com.project.gamemarket.domain.order.Order;
 import com.project.gamemarket.dto.order.OrderDto;
 import com.project.gamemarket.dto.order.OrderListDto;
 import com.project.gamemarket.dto.order.OrderRequestDto;
-import com.project.gamemarket.repository.OrderRepository;
 import com.project.gamemarket.service.OrderService;
 import com.project.gamemarket.service.mapper.OrderMapper;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.UUID;
 
 @RestController
 @Validated
@@ -37,6 +32,7 @@ public class OrderController {
             @PathVariable("cartId") String cartId,
             @Valid @RequestBody OrderRequestDto order) {
         Order placeOrder = orderMapper.toOrder(cartId,customerReference,order);
+        log.info("Order created: " + placeOrder);
         return ResponseEntity.ok(orderMapper.toOrderDto(orderService.placeOrder(placeOrder)));
 
     }

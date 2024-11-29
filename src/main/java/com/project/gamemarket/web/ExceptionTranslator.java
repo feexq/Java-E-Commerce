@@ -2,6 +2,7 @@ package com.project.gamemarket.web;
 
 import com.project.gamemarket.service.exception.*;
 import com.project.gamemarket.web.exception.ParamsViolationDetails;
+import jakarta.persistence.PersistenceException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
@@ -73,6 +74,16 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
         problemDetail.setStatus(NOT_FOUND);
         problemDetail.setType(create("order-not-found"));
         problemDetail.setTitle("Order Not Found");
+        return problemDetail;
+    }
+
+    @ExceptionHandler(PersistenceException.class)
+    ProblemDetail handlePersistenceException(PersistenceException ex) {
+        log.error("PersistenceException");
+        ProblemDetail problemDetail = forStatusAndDetail(INTERNAL_SERVER_ERROR, ex.getMessage());
+        problemDetail.setStatus(INTERNAL_SERVER_ERROR);
+        problemDetail.setType(create("persistence-exception"));
+        problemDetail.setTitle("Persistence Exception");
         return problemDetail;
     }
 

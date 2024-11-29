@@ -1,7 +1,6 @@
 package com.project.gamemarket.service.impl;
 
 
-import com.project.gamemarket.domain.ProductDetails;
 import com.project.gamemarket.domain.order.Order;
 import com.project.gamemarket.domain.order.OrderEntry;
 import com.project.gamemarket.repository.CustomerRepository;
@@ -11,12 +10,12 @@ import com.project.gamemarket.repository.entity.CustomerEntity;
 import com.project.gamemarket.repository.entity.OrderEntity;
 import com.project.gamemarket.repository.entity.OrderEntryEntity;
 import com.project.gamemarket.repository.entity.ProductEntity;
+import com.project.gamemarket.repository.projection.OrderSummary;
 import com.project.gamemarket.service.OrderService;
 import com.project.gamemarket.service.exception.CustomerNotFoundException;
 import com.project.gamemarket.service.exception.OrderNotFoundException;
 import com.project.gamemarket.service.exception.ProductNotFoundException;
 import com.project.gamemarket.service.mapper.OrderMapper;
-import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,8 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -70,35 +67,27 @@ public class OrderServiceImpl implements OrderService {
         orderEntity.setOrder_entries(orderEntries);
         orderEntity.setPayment_reference("test_payment_reference");
 
-        OrderEntity savedOrder = orderRepository.save(orderEntity);
-
-        return Order.builder()
-                .cartId(savedOrder.getCart_id())
-                .customerId(savedOrder.getCustomer().getCustomerReference())
-                .total(savedOrder.getTotal_price())
-                .entries(savedOrder.getOrder_entries().stream()
-                        .map(entry -> OrderEntry.builder()
-                                .gameType(ProductDetails.builder()
-                                        .title(entry.getProductEntity().getTitle())
-                                        .build())
-                                .quantity(entry.getQuantity())
-                                .build())
-                        .collect(Collectors.toList()))
-                .build();
+        try {
+            return orderMapper.toOrderEntity(orderRepository.save(orderEntity));
+        } catch (Exception e) {
+            throw new PersistenceException(e);
+        }
     }
 
     @Override
     @Transactional(readOnly = true)
     public Order getOrderByCartId(String cartId) {
         return orderRepository.naturalId(cartId)
-                .map(orderMapper::toOrder)
+                .map(orderMapper::toOrderEntity)
                 .orElseThrow(() -> new OrderNotFoundException(cartId));
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Order> getAllOrders() {
-        return orderMapper.toOrderList(orderRepository.findAll());
+        return orderRepository.findAllCustom().stream()
+                .map(orderMapper::toOrderFromOrderSummary)
+                .toList();
     }
 
     @Override

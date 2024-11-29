@@ -34,9 +34,4 @@ public class OrderEntryEntity {
     @JoinColumn(name = "order_id",referencedColumnName = "id", nullable = false)
     OrderEntity order_id;
 
-    @Override
-    public String toString() {
-        return "OrderEntryEntity [productEntity=" + productEntity + ", quantity=" + quantity + "]";
-    }
-
 }

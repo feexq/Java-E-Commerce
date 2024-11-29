@@ -2,6 +2,7 @@ package com.project.gamemarket.repository.entity;
 
 import com.project.gamemarket.common.CategoryType;
 import com.project.gamemarket.common.DeviceType;
+import com.project.gamemarket.domain.order.OrderEntry;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -46,9 +47,11 @@ public class ProductEntity {
     @Enumerated(EnumType.ORDINAL)
     List<CategoryType> category_genre;
 
-    @Override
-    public String toString() {
-        return "ProductEntity [title=" + title + "]";
-    }
+    /**
+     * To remove the product.
+     * I don't know if it is advisable to delete the product when it is already placed in the order (I think it's pointless)
+     * **/
+    @OneToMany(mappedBy = "productEntity", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
+    private List<OrderEntryEntity> orderEntries;
 
 }

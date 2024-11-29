@@ -140,7 +140,9 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public List<ProductDetails> getProducts() {
-        return productMapper.toProductDetailsList(productRepository.findAll());
+        return productRepository.findAllCustomByDesc().stream()
+                .map(productMapper::toProductFromProductSummary)
+                .toList();
     }
 
 }

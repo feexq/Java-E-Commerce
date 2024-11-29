@@ -37,15 +37,5 @@ public class OrderEntity {
     @OneToMany(mappedBy = "order_id", cascade = {CascadeType.PERSIST}, orphanRemoval = true, fetch = FetchType.LAZY)
     List<OrderEntryEntity> order_entries;
 
-    @Override
-    public String toString() {
-        return "OrderEntity{" +
-                "cartId='" + cart_id + '\'' +
-                ", totalPrice=" + total_price +
-                ", customerReference=" + (customer != null ? customer.getCustomerReference() : "null") +
-                ", orderEntries=" + order_entries +
-                '}';
-    }
-
 
 }

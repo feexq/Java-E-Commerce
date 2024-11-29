@@ -10,7 +10,7 @@ import com.project.gamemarket.dto.order.OrderRequestDto;
 import com.project.gamemarket.repository.entity.CustomerEntity;
 import com.project.gamemarket.repository.entity.OrderEntity;
 import com.project.gamemarket.repository.entity.OrderEntryEntity;
-import org.aspectj.weaver.ast.Or;
+import com.project.gamemarket.repository.projection.OrderSummary;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -19,17 +19,31 @@ import java.util.UUID;
 
 @Mapper(componentModel = "spring")
 public interface OrderMapper {
+
+    @Mapping(target = "gameType", source = "gameType.title")
+    OrderEntryDto toOrderEntryDto(OrderEntry orderEntry);
+
     @Mapping(target = "cartId", source = "cartId")
     @Mapping(target = "total", source = "orderDto.total")
     @Mapping(target = "customerId", source = "customerReference")
     @Mapping(target = "entries", source = "orderDto.entries")
     Order toOrder(String cartId, String customerReference, OrderRequestDto orderDto);
 
+    default ProductDetails map(String gameType) {
+        return ProductDetails.builder()
+                .title(gameType)
+                .build();
+    }
+
+    default String map(ProductDetails productDetails) {
+        return productDetails.getTitle();
+    }
+
     @Mapping(target = "cartId", source = "cart_id")
     @Mapping(target = "total", source = "total_price")
     @Mapping(target = "customerId", source = "customer")
     @Mapping(target = "entries", source = "order_entries")
-    Order toOrder(OrderEntity orderEntity);
+    Order toOrderEntity(OrderEntity orderEntity);
 
     @Mapping(source = "cartId", target = "cart_id")
     @Mapping(source = "total", target = "total_price")
@@ -69,13 +83,11 @@ public interface OrderMapper {
 
     OrderDto toOrderDto(Order order);
 
-    default ProductDetails map(String gameType) {
-        return ProductDetails.builder()
-                .title(gameType)
-                .build();
-    }
+    @Mapping(source = "cart_id", target = "cartId")
+    @Mapping(source = "payment_reference", target = "payment_reference")
+    @Mapping(source = "total_price", target = "total")
+    @Mapping(target = "entries", ignore = true)  // Ігноруємо, бо в проекції їх немає
+    @Mapping(target = "customerId", source = "customerReference")
+    Order toOrderFromOrderSummary(OrderSummary orderSummary);
 
-    default String map(ProductDetails productDetails) {
-        return productDetails.getTitle();
-    }
 }
