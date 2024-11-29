@@ -86,7 +86,7 @@ public interface OrderMapper {
     @Mapping(source = "cart_id", target = "cartId")
     @Mapping(source = "payment_reference", target = "payment_reference")
     @Mapping(source = "total_price", target = "total")
-    @Mapping(target = "entries", ignore = true)  // Ігноруємо, бо в проекції їх немає
+    @Mapping(target = "entries", ignore = true)
     @Mapping(target = "customerId", source = "customerReference")
     Order toOrderFromOrderSummary(OrderSummary orderSummary);
 

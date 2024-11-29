@@ -47,11 +47,6 @@ public class ProductEntity {
     @Enumerated(EnumType.ORDINAL)
     List<CategoryType> category_genre;
 
-    /**
-     * To remove the product.
-     * I don't know if it is advisable to delete the product when it is already placed in the order (I think it's pointless)
-     * CascadeType.PERSIST
-     * **/
     @OneToMany(mappedBy = "productEntity", cascade = {CascadeType.MERGE}, orphanRemoval = true)
     private List<OrderEntryEntity> orderEntries;
 

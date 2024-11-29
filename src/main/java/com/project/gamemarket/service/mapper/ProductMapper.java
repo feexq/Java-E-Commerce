@@ -58,9 +58,6 @@ public interface ProductMapper {
     @Mapping(target = "shortDescription", source = "shortDescription")
     @Mapping(target = "price", source = "price")
     @Mapping(target = "title", source = "title")
-//    @Mapping(target = "developer", source = "developer")
-//    @Mapping(target = "deviceTypes", source = "deviceTypes", qualifiedByName = "toDeviceTypeString")
-//    @Mapping(target = "genres", source = "genres", qualifiedByName = "toGenresString")
     ProductDetailsEntry toProductDetailsEntry(ProductDetails productDetails);
 
     @Named("toDeviceTypeString")
