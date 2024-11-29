@@ -17,7 +17,7 @@ import lombok.extern.jackson.Jacksonized;
 import java.util.List;
 
 @Value
-@Builder
+@Builder(toBuilder = true)
 @Jacksonized
 @GroupSequence({ProductDetailsDto.class, ExtendedValidation.class})
 public class ProductDetailsDto {

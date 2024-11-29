@@ -4,18 +4,20 @@ package com.project.gamemarket.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.gamemarket.AbstractIt;
 import com.project.gamemarket.domain.CustomerDetails;
+import com.project.gamemarket.domain.ProductDetails;
 import com.project.gamemarket.dto.customer.CustomerDetailsDto;
 import com.project.gamemarket.objects.BuildCustomers;
 import com.project.gamemarket.repository.CustomerRepository;
+import com.project.gamemarket.repository.OrderRepository;
 import com.project.gamemarket.repository.entity.CustomerEntity;
+import com.project.gamemarket.repository.entity.OrderEntity;
+import com.project.gamemarket.repository.entity.ProductEntity;
 import com.project.gamemarket.service.CustomerService;
 import com.project.gamemarket.service.exception.CustomerNotFoundException;
 import com.project.gamemarket.service.mapper.CustomDetailsMapper;
+import jakarta.persistence.PersistenceException;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,22 +30,25 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.shaded.org.checkerframework.checker.units.qual.N;
 
 
 import java.net.URI;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.project.gamemarket.service.exception.CustomerNotFoundException.CUSTOMER_NOT_FOUND_MESSAGE;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
+
 @AutoConfigureMockMvc
 @DisplayName("Customer Controller IT")
 @ExtendWith(SpringExtension.class)
@@ -196,10 +201,41 @@ public class CustomerControllerIT extends AbstractIt {
         });
 
         verify(customerService, times(2)).getCustomerByReference(customerId);
+    }
 
+    @Test
+    @SneakyThrows
+    void shouldFindAllCustomers() {
+        List<CustomerDetails> customerDetails = buildCustomers.buildCustomerDetailsList();
 
+        List<CustomerEntity> customerEntities = customerDetails.stream().map(customDetailsMapper::toCustomerEntity).toList();
 
+        customerRepository.saveAll(customerEntities);
 
+        mockMvc.perform(get("/api/v1/customers")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.customerDetailsEntries", hasSize(customerDetails.size())))
+                .andExpect(jsonPath("$.customerDetailsEntries[0].name").value("Jack Spring"))
+                .andExpect(jsonPath("$.customerDetailsEntries[1].name").value("Jack Summer"))
+                .andExpect(jsonPath("$.customerDetailsEntries[*].id").exists())
+                .andExpect(jsonPath("$.customerDetailsEntries[*].phoneNumber").exists())
+                .andExpect(jsonPath("$.customerDetailsEntries[0].email").value("jacksrping@gmail.com"));
+    }
+
+    @Test
+    @SneakyThrows
+    void shouldDeleteCustomer() {
+        CustomerDetails customerDetails = customDetailsMapper.toCustomerDetails(buildCustomers.buildCustomerDetailsDto());
+
+        CustomerEntity customerEntity = customerRepository.save(customDetailsMapper.toCustomerEntity(customerDetails));
+
+        mockMvc.perform(delete("/api/v1/customers/{id}", customerEntity.getId()))
+                .andExpect(status().isNoContent());
+
+        verify(customerService, times(1)).deleteCustomer(customerEntity.getId());
+        Assertions.assertEquals(Optional.empty(), customerRepository.naturalId(customerEntity.getCustomerReference()));
     }
 
 }

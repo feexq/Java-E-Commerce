@@ -2,7 +2,6 @@ databaseChangeLog:
   - changeSet:
       id: lab-3-customers
       author: feex
-      runOnChange: true
       changes:
         - createTable:
             tableName: customer

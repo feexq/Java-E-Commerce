@@ -91,7 +91,7 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
     ProblemDetail handleProductTitleAlreadyExistsException(TitleAlreadyExistsException ex) {
         log.error("TitleAlreadyExistsException");
         ProblemDetail problemDetail = forStatusAndDetail(CONFLICT, ex.getMessage());
-        problemDetail.setStatus(BAD_REQUEST);
+        problemDetail.setStatus(CONFLICT);
         problemDetail.setType(create("title-already-exists"));
         problemDetail.setTitle("Title Already Exists");
         return problemDetail;

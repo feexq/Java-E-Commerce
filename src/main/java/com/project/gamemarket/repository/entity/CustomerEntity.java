@@ -45,6 +45,5 @@ public class CustomerEntity {
     List<DeviceType> device_type;
 
     @OneToMany(mappedBy = "customer", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
-    @JsonBackReference
     List<OrderEntity> orders;
 }
