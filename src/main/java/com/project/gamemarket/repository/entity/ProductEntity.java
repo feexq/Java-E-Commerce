@@ -35,13 +35,13 @@ public class ProductEntity {
 
     String developer;
 
-    @ElementCollection(targetClass = DeviceType.class, fetch = FetchType.EAGER)
+    @ElementCollection(targetClass = DeviceType.class)
     @CollectionTable(name = "product_device_types",
             joinColumns = @JoinColumn(name = "product_id"))
     @Enumerated(EnumType.ORDINAL)
     List<DeviceType> device_type;
 
-    @ElementCollection(targetClass = CategoryType.class, fetch = FetchType.EAGER)
+    @ElementCollection(targetClass = CategoryType.class)
     @CollectionTable(name = "product_category_genres",
             joinColumns = @JoinColumn(name = "product_id"))
     @Enumerated(EnumType.ORDINAL)

@@ -38,12 +38,12 @@ public class CustomerEntity {
     @Column(nullable = false, unique = true)
     UUID customerReference;
 
-    @ElementCollection(targetClass = DeviceType.class, fetch = FetchType.LAZY)
+    @ElementCollection(targetClass = DeviceType.class)
     @CollectionTable(name = "customer_device_type",
             joinColumns = @JoinColumn(name = "customer_id"))
     @Enumerated(EnumType.ORDINAL)
     List<DeviceType> device_type;
 
-    @OneToMany(mappedBy = "customer", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "customer", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     List<OrderEntity> orders;
 }

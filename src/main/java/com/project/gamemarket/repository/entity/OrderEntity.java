@@ -30,11 +30,11 @@ public class OrderEntity {
     Double total_price;
     String payment_reference;
 
-    @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "customer_id", nullable = false)
     CustomerEntity customer;
 
-    @OneToMany(mappedBy = "order_id", cascade = {CascadeType.PERSIST}, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "order_id", cascade = {CascadeType.PERSIST}, orphanRemoval = true)
     List<OrderEntryEntity> order_entries;
 
 

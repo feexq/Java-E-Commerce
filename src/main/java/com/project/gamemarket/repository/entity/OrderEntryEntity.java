@@ -20,7 +20,7 @@ public class OrderEntryEntity {
     @SequenceGenerator(name = "order_entry_id_seq", sequenceName = "order_entry_id_seq")
     Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
     ProductEntity productEntity;
 
@@ -30,7 +30,7 @@ public class OrderEntryEntity {
     @Column(name = "price", nullable = false)
     Double price;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST})
+    @ManyToOne(cascade = {CascadeType.PERSIST})
     @JoinColumn(name = "order_id",referencedColumnName = "id", nullable = false)
     OrderEntity order_id;
 
