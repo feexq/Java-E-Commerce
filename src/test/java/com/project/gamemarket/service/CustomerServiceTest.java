@@ -45,8 +45,8 @@ public class CustomerServiceTest {
     @Test
     @DisplayName("Delete Customer - Persistence Exception")
     void testDeleteCustomer_PersistenceException() {
-        Long customerId = 1L;
-        doThrow(new RuntimeException("Delete failed")).when(customerRepository).deleteById(customerId);
+        UUID customerId = UUID.randomUUID();
+        doThrow(new RuntimeException("Delete failed")).when(customerRepository).deleteByNaturalId(customerId);
 
         assertThrows(PersistenceException.class, () ->
                 customerService.deleteCustomer(customerId)

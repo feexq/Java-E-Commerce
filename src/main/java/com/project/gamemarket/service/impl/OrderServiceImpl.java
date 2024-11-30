@@ -92,11 +92,11 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public void deleteOrder(Long id) {
+    public void deleteOrder(String cartId) {
         try {
-            orderRepository.deleteById(id);
+            orderRepository.deleteByNaturalId(cartId);
         } catch (Exception e) {
-            log.error("Error while deleting product with id {}", id);
+            log.error("Error while deleting product with id {}", cartId);
             throw new PersistenceException(e);
         }
     }

@@ -24,4 +24,9 @@ public class NaturalIdRepositoryImpl<T, ID extends Serializable> extends SimpleJ
                 .loadOptional(naturalId);
     }
 
+    @Override
+    public void deleteByNaturalId(ID naturalId) {
+        naturalId(naturalId).ifPresent(this::delete);
+    }
+
 }

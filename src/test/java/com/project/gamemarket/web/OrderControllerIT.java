@@ -195,7 +195,7 @@ public class OrderControllerIT extends AbstractIt {
     void shouldDeleteOrder() {
         Order order = saveOrder();
 
-        mockMvc.perform(delete("/api/v1/orders/{id}", order.getId())
+        mockMvc.perform(delete("/api/v1/orders/{id}", order.getCartId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
@@ -203,126 +203,6 @@ public class OrderControllerIT extends AbstractIt {
         Assertions.assertEquals(Optional.empty(), orderRepository.naturalId(order.getCartId()));
 
     }
-//
-//    @Test
-//    @SneakyThrows
-//    void shouldThrowsValidationExceptionWhitNoValidationCustomerFields() {
-//        CustomerDetailsDto dto = customDetailsMapper.toCustomerDetailsDto(buildCustomers.buildInvalidCustomerDetails());
-//
-//        mockMvc.perform(post("/api/v1/customers")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsBytes(dto)))
-//                .andExpect(status().isBadRequest())
-//                .andExpect(jsonPath("$.type").value("urn:problem-type:validation-error"))
-//                .andExpect(jsonPath("$.title").value("Field Validation Exception"))
-//                .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
-//                .andExpect(jsonPath("$.detail").value("Request validation failed"))
-//                .andExpect(jsonPath("$.invalidParams", hasSize(greaterThan(0))))
-//                .andExpect(jsonPath("$.invalidParams[*].fieldName")
-//                        .value(containsInAnyOrder("region", "email", "phoneNumber", "name")))
-//                .andExpect(jsonPath("$.invalidParams[*].reason").exists());
-//    }
-//
-//    @Test
-//    @SneakyThrows
-//    void shouldThrowsCustomValidationException() {
-//        CustomerDetailsDto dto = customDetailsMapper.toCustomerDetailsDto(buildCustomers.buildCustomInvalidCustomerDetails());
-//
-//        mockMvc.perform(post("/api/v1/customers")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsBytes(dto)))
-//                .andExpect(status().isBadRequest())
-//                .andExpect(jsonPath("$.type").value("urn:problem-type:validation-error"))
-//                .andExpect(jsonPath("$.title").value("Field Validation Exception"))
-//                .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
-//                .andExpect(jsonPath("$.detail").value("Request validation failed"))
-//                .andExpect(jsonPath("$.invalidParams", hasSize(greaterThan(0))))
-//                .andExpect(jsonPath("$.invalidParams[*].fieldName")
-//                        .value(containsInAnyOrder("region")))
-//                .andExpect(jsonPath("$.invalidParams[*].reason").exists());
-//    }
-//
-//    @Test
-//    @SneakyThrows
-//    void shouldFindByCustomerReference() {
-//        CustomerDetails customer = buildCustomers.buildCustomerDetails();
-//        CustomerEntity customerEntity = customDetailsMapper.toCustomerEntity(customer);
-//        customerRepository.save(customerEntity);
-//
-//        mockMvc.perform(get("/api/v1/customers/{id}", customerEntity.getCustomerReference())
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(content().contentType(APPLICATION_JSON_VALUE))
-//                .andExpect(jsonPath("$.name").value(customer.getName()))
-//                .andExpect(jsonPath("$.email").value(customer.getEmail()))
-//                .andExpect(jsonPath("$.region").value(customer.getRegion()))
-//                .andExpect(jsonPath("$.phoneNumber").value(customer.getPhoneNumber()))
-//                .andExpect(jsonPath("$.deviceTypes").isArray());
-//
-//        verify(customerService, times(1)).getCustomerByReference(customerEntity.getCustomerReference());
-//    }
-//
-//    @Test
-//    @SneakyThrows
-//    void shouldThrowsCustomerNotFoundException() {
-//        UUID customerId = UUID.randomUUID();
-//
-//        ProblemDetail problemDetail =
-//                ProblemDetail.forStatusAndDetail(NOT_FOUND, String.format(CUSTOMER_NOT_FOUND_MESSAGE, customerId));
-//
-//        problemDetail.setType(URI.create("customer-not-found"));
-//        problemDetail.setTitle("Customer Not Found");
-//
-//        mockMvc.perform(get("/api/v1/customers/{id}", customerId)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isNotFound())
-//                .andExpect(content().json(objectMapper.writeValueAsString(problemDetail)));
-//
-//        assertThrows(CustomerNotFoundException.class, () -> {
-//            customerController.getCustomerById(customerId);
-//        });
-//
-//        verify(customerService, times(2)).getCustomerByReference(customerId);
-//    }
-//
-//    @Test
-//    @SneakyThrows
-//    void shouldFindAllCustomers() {
-//        List<CustomerDetails> customerDetails = buildCustomers.buildCustomerDetailsList();
-//
-//        List<CustomerEntity> customerEntities = customerDetails.stream().map(customDetailsMapper::toCustomerEntity).toList();
-//
-//        customerRepository.saveAll(customerEntities);
-//
-//        mockMvc.perform(get("/api/v1/customers")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.customerDetailsEntries", hasSize(customerDetails.size())))
-//                .andExpect(jsonPath("$.customerDetailsEntries[0].name").value("Jack Spring"))
-//                .andExpect(jsonPath("$.customerDetailsEntries[1].name").value("Jack Summer"))
-//                .andExpect(jsonPath("$.customerDetailsEntries[*].id").exists())
-//                .andExpect(jsonPath("$.customerDetailsEntries[*].phoneNumber").exists())
-//                .andExpect(jsonPath("$.customerDetailsEntries[0].email").value("jacksrping@gmail.com"));
-//    }
-//
-//    @Test
-//    @SneakyThrows
-//    void shouldDeleteCustomer() {
-//        CustomerDetails customerDetails = customDetailsMapper.toCustomerDetails(buildCustomers.buildCustomerDetailsDto());
-//
-//        CustomerEntity customerEntity = customerRepository.save(customDetailsMapper.toCustomerEntity(customerDetails));
-//
-//        mockMvc.perform(delete("/api/v1/customers/{id}", customerEntity.getId()))
-//                .andExpect(status().isNoContent());
-//
-//        verify(customerService, times(1)).deleteCustomer(customerEntity.getId());
-//        Assertions.assertEquals(Optional.empty(), customerRepository.naturalId(customerEntity.getCustomerReference()));
-//    }
 
     private CustomerEntity createCustomer() {
         return customerRepository.save(CustomerEntity.builder()

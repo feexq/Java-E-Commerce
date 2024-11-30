@@ -50,8 +50,8 @@ public class OrderController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<OrderDto> deleteOrder(
-            @PathVariable("id") Long id) {
-        orderService.deleteOrder(id);
+            @PathVariable("id") String cartId) {
+        orderService.deleteOrder(cartId);
         return ResponseEntity.noContent().build();
     }
 }

@@ -14,6 +14,6 @@ public interface CustomerService {
 
     CustomerDetails createCustomer(CustomerDetails customerDetails);
 
-    void deleteCustomer(Long id);
+    void deleteCustomer(UUID customerReference);
 
 }

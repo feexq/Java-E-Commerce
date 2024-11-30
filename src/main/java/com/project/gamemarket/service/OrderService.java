@@ -9,6 +9,6 @@ public interface OrderService {
     Order placeOrder(Order order);
     Order getOrderByCartId(String cartId);
     List<Order> getAllOrders();
-    void deleteOrder(Long id);
+    void deleteOrder(String cartId);
 
 }

@@ -60,9 +60,9 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     @Transactional
-    public void deleteCustomer(Long id) {
+    public void deleteCustomer(UUID customerReference) {
         try {
-            customerRepository.deleteById(id);
+            customerRepository.deleteByNaturalId(customerReference);
         } catch (Exception e) {
             log.error("Error during delete customer by id");
             throw new PersistenceException(e);

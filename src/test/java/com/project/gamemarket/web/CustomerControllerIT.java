@@ -231,10 +231,10 @@ public class CustomerControllerIT extends AbstractIt {
 
         CustomerEntity customerEntity = customerRepository.save(customDetailsMapper.toCustomerEntity(customerDetails));
 
-        mockMvc.perform(delete("/api/v1/customers/{id}", customerEntity.getId()))
+        mockMvc.perform(delete("/api/v1/customers/{id}", customerEntity.getCustomerReference()))
                 .andExpect(status().isNoContent());
 
-        verify(customerService, times(1)).deleteCustomer(customerEntity.getId());
+        verify(customerService, times(1)).deleteCustomer(customerEntity.getCustomerReference());
         Assertions.assertEquals(Optional.empty(), customerRepository.naturalId(customerEntity.getCustomerReference()));
     }
 

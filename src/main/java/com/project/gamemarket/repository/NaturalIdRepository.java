@@ -8,4 +8,6 @@ import java.util.Optional;
 @NoRepositoryBean
 public interface NaturalIdRepository<T, ID> extends JpaRepository<T, ID> {
     Optional<T> naturalId(ID naturalId);
+
+    void deleteByNaturalId(ID naturalId);
 }
