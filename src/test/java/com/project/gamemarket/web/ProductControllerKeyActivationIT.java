@@ -10,7 +10,13 @@ import com.project.gamemarket.featuretoggle.FeatureExtension;
 import com.project.gamemarket.featuretoggle.FeatureToggles;
 import com.project.gamemarket.featuretoggle.anotation.DisableFeature;
 import com.project.gamemarket.featuretoggle.anotation.EnableFeature;
+import com.project.gamemarket.objects.BuildProducts;
+import com.project.gamemarket.repository.ProductRepository;
+import com.project.gamemarket.repository.entity.ProductEntity;
+import com.project.gamemarket.service.ProductService;
+import com.project.gamemarket.service.mapper.ProductMapper;
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -18,6 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.test.web.servlet.MockMvc;
@@ -29,6 +36,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.project.gamemarket.service.exception.FeatureNotEnabledException.FEATURE_NOT_ENABLED_MESSAGE;
 import static com.project.gamemarket.service.exception.KeyActivationFailedProcessActivation.KEY_S_ACTIVATION_FAILED_PROCESS_ACTIVATION;
 import static java.net.URI.create;
+import static org.mockito.Mockito.reset;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -37,7 +45,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
-@SpringBootTest
+
 @AutoConfigureMockMvc
 @DisplayName("Product Controller Wiremock IT")
 @Tag("product-service-wiremock")
@@ -53,6 +61,23 @@ public class ProductControllerKeyActivationIT extends AbstractIt {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @SpyBean
+    private ProductService productService;
+
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private ProductMapper productMapper;
+
+    @Autowired
+    private BuildProducts buildProducts;
+
+    @BeforeEach
+    void setUp() {
+        reset(productService);
+        productRepository.deleteAll();
+    }
 
     @Test
     @SneakyThrows
@@ -60,10 +85,12 @@ public class ProductControllerKeyActivationIT extends AbstractIt {
     void shouldFindProductByActivationKey() {
         KeyActivationRequestDto keyActivationRequestDto = KeyActivationRequestDto.builder().customerId(CUSTOMER_REFERENCE).key("B2Q65-R9DN8-674S7").build();
 
+        ProductEntity productEntity = productRepository.save(productMapper.toProductEntity(productMapper.toProductDetails(buildProducts.buildProductDetailsDtoMock())));
+
         stubFor(WireMock.post("/key-service/v1/activate")
                 .willReturn(aResponse().withStatus(200)
                         .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-                        .withBody(objectMapper.writeValueAsBytes(KeyActivationResponseDto.builder().status(KeyActivationStatus.SUCCESS).productId("1").key("B2Q65-R9DN8-674S7").build()))));
+                        .withBody(objectMapper.writeValueAsBytes(KeyActivationResponseDto.builder().status(KeyActivationStatus.SUCCESS).productId(productEntity.getId().toString()).key("B2Q65-R9DN8-674S7").build()))));
 
         mockMvc.perform(post("/api/v1/products/{customerReference}/activate",keyActivationRequestDto.getCustomerId())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -71,15 +98,8 @@ public class ProductControllerKeyActivationIT extends AbstractIt {
                         .content(objectMapper.writeValueAsString(keyActivationRequestDto.getKey())))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(APPLICATION_JSON_VALUE))
-                .andExpect(jsonPath("$.title").value("Witcher 3"))
-                .andExpect(jsonPath("$.shortDescription").isNotEmpty())
-                .andExpect(jsonPath("$.price").value(30.0))
-                .andExpect(jsonPath("$.developer").value("CD Projekt Red"))
-                .andExpect(jsonPath("$.deviceTypes").isArray())
-                .andExpect(jsonPath("$.deviceTypes[0]").value("console"))
-                .andExpect(jsonPath("$.deviceTypes[1]").value("pc"))
-                .andExpect(jsonPath("$.genres[0]").value("rpg"))
-                .andExpect(jsonPath("$.genres[1]").value("mythology"));
+                .andExpect(content().json(objectMapper.writeValueAsString(buildProducts.buildProductDetailsDtoMock())));
+
     }
 
     @Test

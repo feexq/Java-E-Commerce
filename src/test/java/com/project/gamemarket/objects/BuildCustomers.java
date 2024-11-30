@@ -20,6 +20,8 @@ public class BuildCustomers {
                 .build();
     }
 
+
+
     public CustomerDetails buildCustomerDetails() {
         return CustomerDetails.builder()
                 .id(1L)
@@ -50,6 +52,26 @@ public class BuildCustomers {
                 .region("Russian")
                 .deviceTypes(List.of(DeviceType.CONSOLE, DeviceType.PC))
                 .build();
+    }
+
+    public List<CustomerDetails> buildCustomerDetailsList() {
+        return List.of(
+                CustomerDetails.builder()
+                .id(1L)
+                .name("Jack Spring")
+                .email("jacksrping@gmail.com")
+                .phoneNumber("+1234567890")
+                .region("Ukraine")
+                .deviceTypes(List.of(DeviceType.CONSOLE, DeviceType.PC))
+                .build(),
+                CustomerDetails.builder()
+                        .id(5L)
+                        .name("Jack Summer")
+                        .email("jacksummer@gmail.com")
+                        .phoneNumber("+1534567890")
+                        .region("Ukraine")
+                        .deviceTypes(List.of(DeviceType.CONSOLE, DeviceType.PC))
+                        .build());
     }
 
 }

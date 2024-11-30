@@ -1,0 +1,57 @@
+databaseChangeLog:
+  - changeSet:
+      id: lab-3-orders-entry
+      author: feex
+      changes:
+        - createTable:
+            tableName: order_entry
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: product_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: quantity
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: price
+                  type: DECIMAL(10,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: order_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+
+        - createSequence:
+            sequenceName: order_entry_id_seq
+            incrementBy: 50
+
+        - addForeignKeyConstraint:
+            baseTableName: order_entry
+            baseColumnNames: order_id
+            referencedTableName: orders
+            referencedColumnNames: id
+            constraintName: fk_order_entry_order
+
+        - addForeignKeyConstraint:
+            baseTableName: order_entry
+            baseColumnNames: product_id
+            referencedTableName: product
+            referencedColumnNames: id
+            constraintName: fk_order_entry_product
+
+        - addUniqueConstraint:
+            tableName: order_entry
+            columnNames: product_id, order_id
+            constraintName: uq_product_order_id

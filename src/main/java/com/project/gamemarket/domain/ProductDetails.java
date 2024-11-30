@@ -1,7 +1,7 @@
 package com.project.gamemarket.domain;
 
 import com.project.gamemarket.common.DeviceType;
-import com.project.gamemarket.common.GenreType;
+import com.project.gamemarket.common.CategoryType;
 import lombok.Builder;
 import lombok.Value;
 
@@ -17,5 +17,5 @@ public class ProductDetails {
     Double price;
     String developer;
     List<DeviceType> deviceTypes;
-    List<GenreType> genres;
+    List<CategoryType> genres;
 }
