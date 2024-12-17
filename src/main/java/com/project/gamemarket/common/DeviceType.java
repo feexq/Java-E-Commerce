@@ -12,7 +12,7 @@ public enum DeviceType {
     PC("PC"),
     MOBILE("Mobile"),
     CONSOLE("Console"),
-    NINTENDO_SWITCH("NintendoSwitch"),;
+    NINTENDO_SWITCH("NintendoSwitch");
 
     private final String name;
 

@@ -5,7 +5,8 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum GenreType {
+public enum CategoryType {
+
     ACTION_ROGUELIKE("Action Roguelike"),
     RPG("RPG"),
     HACK_AND_SLASH("Hack and Slash"),
@@ -15,12 +16,12 @@ public enum GenreType {
 
     private final String name;
 
-    public static GenreType fromName(String name) {
-        for (GenreType genre : values()) {
+    public static CategoryType fromName(String name) {
+        for (CategoryType genre : values()) {
             if (genre.name.equalsIgnoreCase(name)) {
                 return genre;
             }
         }
-        throw new IllegalArgumentException(String.format("Genre type '%s' not found", name));
+        throw new IllegalArgumentException(String.format("Category type '%s' not found", name));
     }
 }

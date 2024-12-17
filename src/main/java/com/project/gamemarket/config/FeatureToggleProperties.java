@@ -16,8 +16,4 @@ public class FeatureToggleProperties {
 
     Map<String, Boolean> toggles;
 
-    public boolean check(String feature) {
-        return toggles.getOrDefault(feature,false);
-    }
-
 }

@@ -4,6 +4,7 @@ import com.project.gamemarket.dto.validation.ExtendedValidation;
 import com.project.gamemarket.dto.validation.annotation.ValidDeveloperBan;
 import com.project.gamemarket.dto.validation.annotation.ValidDevice;
 import com.project.gamemarket.dto.validation.annotation.ValidGenre;
+import com.project.gamemarket.dto.validation.annotation.ValidNoSpace;
 import jakarta.validation.GroupSequence;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -16,13 +17,14 @@ import lombok.extern.jackson.Jacksonized;
 import java.util.List;
 
 @Value
-@Builder
+@Builder(toBuilder = true)
 @Jacksonized
 @GroupSequence({ProductDetailsDto.class, ExtendedValidation.class})
 public class ProductDetailsDto {
 
     @NotBlank(message = "Title is mandatory")
     @Size(max = 98, message = "Title cannot exceed 99 characters")
+    @ValidNoSpace(groups = ExtendedValidation.class)
     String title;
 
     @NotBlank(message = "Description is mandatory")
