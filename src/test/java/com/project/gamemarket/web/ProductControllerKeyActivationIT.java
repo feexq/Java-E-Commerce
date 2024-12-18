@@ -27,6 +27,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.net.URI;
@@ -45,7 +46,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
-
+@SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("Product Controller Wiremock IT")
 @Tag("product-service-wiremock")
@@ -82,6 +83,7 @@ public class ProductControllerKeyActivationIT extends AbstractIt {
     @Test
     @SneakyThrows
     @EnableFeature(FeatureToggles.KEY_ACTIVATION)
+    @WithMockUser
     void shouldFindProductByActivationKey() {
         KeyActivationRequestDto keyActivationRequestDto = KeyActivationRequestDto.builder().customerId(CUSTOMER_REFERENCE).key("B2Q65-R9DN8-674S7").build();
 
@@ -105,6 +107,7 @@ public class ProductControllerKeyActivationIT extends AbstractIt {
     @Test
     @SneakyThrows
     @EnableFeature(FeatureToggles.KEY_ACTIVATION)
+    @WithMockUser
     void shouldDropProductNotFoundException() {
         KeyActivationRequestDto keyActivationRequestDto = KeyActivationRequestDto.builder().customerId(CUSTOMER_REFERENCE).key("B2Q65-R9DN8-674S7").build();
 
@@ -134,6 +137,7 @@ public class ProductControllerKeyActivationIT extends AbstractIt {
     @Test
     @SneakyThrows
     @DisableFeature(FeatureToggles.KEY_ACTIVATION)
+    @WithMockUser
     void shouldDropFeatureNotEnableException() {
         KeyActivationRequestDto keyActivationRequestDto = KeyActivationRequestDto.builder().customerId(CUSTOMER_REFERENCE).key("B2Q65-R9DN8-674S7").build();
 

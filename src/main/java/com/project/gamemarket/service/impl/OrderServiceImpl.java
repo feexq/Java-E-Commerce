@@ -19,8 +19,11 @@ import com.project.gamemarket.service.mapper.OrderMapper;
 import jakarta.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,6 +86,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'DELIVERY')")
     @Transactional(readOnly = true)
     public List<Order> getAllOrders() {
         return orderRepository.findAllCustom().stream()
@@ -92,6 +96,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteOrder(String cartId) {
         try {
             orderRepository.deleteByNaturalId(cartId);

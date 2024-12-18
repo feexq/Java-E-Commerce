@@ -17,6 +17,7 @@ import com.project.gamemarket.service.mapper.ProductMapper;
 import jakarta.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +35,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public ProductDetails addProduct(ProductDetails product) {
         if (productRepository.existsByTitleIgnoreCase(product.getTitle())) {
             throw new TitleAlreadyExistsException(product.getTitle());
@@ -48,6 +50,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public ProductDetails updateProduct(ProductDetails product) {
         ProductEntity existingProduct = productRepository.findById(product.getId())
                 .orElseThrow(() -> new ProductNotFoundException(product.getId()));
@@ -76,6 +79,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteProduct(Long id) {
         try {
             productRepository.deleteById(id);
