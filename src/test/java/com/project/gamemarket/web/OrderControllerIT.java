@@ -2,35 +2,27 @@ package com.project.gamemarket.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.gamemarket.AbstractIt;
-import com.project.gamemarket.domain.CustomerDetails;
 import com.project.gamemarket.domain.order.Order;
-import com.project.gamemarket.dto.customer.CustomerDetailsDto;
 import com.project.gamemarket.dto.order.OrderEntryDto;
 import com.project.gamemarket.dto.order.OrderRequestDto;
-import com.project.gamemarket.featuretoggle.FeatureToggles;
-import com.project.gamemarket.objects.BuildCustomers;
 import com.project.gamemarket.repository.CustomerRepository;
 import com.project.gamemarket.repository.OrderRepository;
 import com.project.gamemarket.repository.ProductRepository;
 import com.project.gamemarket.repository.entity.CustomerEntity;
-import com.project.gamemarket.repository.entity.OrderEntity;
 import com.project.gamemarket.repository.entity.ProductEntity;
-import com.project.gamemarket.service.CustomerService;
 import com.project.gamemarket.service.OrderService;
-import com.project.gamemarket.service.exception.CustomerNotFoundException;
-import com.project.gamemarket.service.mapper.CustomDetailsMapper;
 import com.project.gamemarket.service.mapper.OrderMapper;
+import com.project.gamemarket.token.GetToken;
 import lombok.SneakyThrows;
-import org.aspectj.weaver.ast.Or;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -39,15 +31,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.project.gamemarket.service.exception.CustomerNotFoundException.CUSTOMER_NOT_FOUND_MESSAGE;
-import static com.project.gamemarket.service.exception.FeatureNotEnabledException.FEATURE_NOT_ENABLED_MESSAGE;
 import static com.project.gamemarket.service.exception.OrderNotFoundException.ORDER_NOT_FOUND_EXCEPTION;
-import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -65,7 +53,6 @@ public class OrderControllerIT extends AbstractIt {
 
     @Autowired
     private CustomerRepository customerRepository;
-
 
     @Autowired
     private OrderRepository orderRepository;
@@ -89,6 +76,7 @@ public class OrderControllerIT extends AbstractIt {
 
     @Test
     @SneakyThrows
+    @WithMockUser(roles = "ADMIN")
     void shouldCreateOrder() {
         CustomerEntity customerEntity = createCustomer();
         createProduct();
@@ -96,6 +84,7 @@ public class OrderControllerIT extends AbstractIt {
 
         mockMvc.perform(post("/api/v1/orders/{customerReference}/{cartId}", customerEntity.getCustomerReference(), "cart-123")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Market-Api-Key", GetToken.getToken())
                         .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(orderRequestDto)))
                 .andExpect(status().isOk())
@@ -106,12 +95,14 @@ public class OrderControllerIT extends AbstractIt {
 
     @Test
     @SneakyThrows
+    @WithMockUser(roles = "ADMIN")
     void shouldThrowProductNotFoundException() {
         CustomerEntity customerEntity = createCustomer();
         OrderRequestDto orderRequestDto = buildOrderRequestDto();
 
         mockMvc.perform(post("/api/v1/orders/{customerReference}/{cartId}", customerEntity.getCustomerReference(), "cart-123")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Market-Api-Key", GetToken.getToken())
                         .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(orderRequestDto)))
                 .andExpect(status().isNotFound())
@@ -120,11 +111,13 @@ public class OrderControllerIT extends AbstractIt {
 
     @Test
     @SneakyThrows
+    @WithMockUser(roles = "ADMIN")
     void shouldThrowCustomerNotFoundException() {
         OrderRequestDto orderRequestDto = buildOrderRequestDto();
 
         mockMvc.perform(post("/api/v1/orders/{customerReference}/{cartId}", UUID.randomUUID(), "cart-123")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Market-Api-Key", GetToken.getToken())
                         .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(orderRequestDto)))
                 .andExpect(status().isNotFound())
@@ -133,6 +126,7 @@ public class OrderControllerIT extends AbstractIt {
 
     @Test
     @SneakyThrows
+    @WithMockUser(roles = "ADMIN")
     void shouldThrowPersistenceException() {
         CustomerEntity customerEntity = createCustomer();
         createProduct();
@@ -140,6 +134,7 @@ public class OrderControllerIT extends AbstractIt {
 
         mockMvc.perform(post("/api/v1/orders/{customerReference}/{cartId}", customerEntity.getCustomerReference(), "cart-123")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Market-Api-Key", GetToken.getToken())
                         .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(orderRequestDto)))
                 .andExpect(status().isInternalServerError())
@@ -148,10 +143,12 @@ public class OrderControllerIT extends AbstractIt {
 
     @Test
     @SneakyThrows
+    @WithMockUser
     void shouldGetOrderByCartId(){
         saveOrder();
 
         mockMvc.perform(get("/api/v1/orders/{cartId}", "cart-123")
+                        .header("Market-Api-Key", GetToken.getToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -162,6 +159,7 @@ public class OrderControllerIT extends AbstractIt {
 
     @Test
     @SneakyThrows
+    @WithMockUser
     void shouldThrowOrderNotFoundException(){
         ProblemDetail problemDetail =
                 ProblemDetail.forStatusAndDetail(NOT_FOUND, String.format(ORDER_NOT_FOUND_EXCEPTION, "cart-123"));
@@ -171,6 +169,7 @@ public class OrderControllerIT extends AbstractIt {
 
         mockMvc.perform(get("/api/v1/orders/{cartId}", "cart-123")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Market-Api-Key", GetToken.getToken())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().json(objectMapper.writeValueAsString(problemDetail)));
@@ -178,11 +177,13 @@ public class OrderControllerIT extends AbstractIt {
 
     @Test
     @SneakyThrows
+    @WithMockUser(roles = "DELIVERY")
     void shouldFindAllOrders() {
         saveOrder();
 
         mockMvc.perform(get("/api/v1/orders")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Market-Api-Key", GetToken.getToken())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.orders[0].cartId").value("cart-123"))
@@ -192,16 +193,54 @@ public class OrderControllerIT extends AbstractIt {
 
     @Test
     @SneakyThrows
+    @WithMockUser(roles = "ADMIN")
     void shouldDeleteOrder() {
         Order order = saveOrder();
 
         mockMvc.perform(delete("/api/v1/orders/{id}", order.getCartId())
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Market-Api-Key", GetToken.getToken())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
         Assertions.assertEquals(Optional.empty(), orderRepository.naturalId(order.getCartId()));
 
+    }
+
+    @Test
+    @SneakyThrows
+    void shouldDropUnauthorized() {
+        Order order = saveOrder();
+
+        mockMvc.perform(delete("/api/v1/orders/{id}", order.getCartId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @SneakyThrows
+    @WithMockUser(roles = "ADMIN")
+    void shouldDropUnauthorizedWithoutApiKey() {
+        Order order = saveOrder();
+
+        mockMvc.perform(delete("/api/v1/orders/{id}", order.getCartId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @SneakyThrows
+    @WithMockUser(roles = "ADMIN")
+    void shouldDropUnauthorizedBecauseApiKeyNoValid() {
+        Order order = saveOrder();
+
+        mockMvc.perform(delete("/api/v1/orders/{id}", order.getCartId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Market-Api-Key", "Bearer tesadasdasdsadas")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
     }
 
     private CustomerEntity createCustomer() {

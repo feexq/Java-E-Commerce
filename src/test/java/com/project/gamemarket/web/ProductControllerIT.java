@@ -30,6 +30,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.*;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -48,11 +49,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
+@SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("Product Controller IT")
-@ExtendWith(FeatureExtension.class)
-@ExtendWith(SpringExtension.class)
+@ExtendWith({FeatureExtension.class, SpringExtension.class})
 public class ProductControllerIT extends AbstractIt {
 
     @SpyBean
@@ -81,6 +81,7 @@ public class ProductControllerIT extends AbstractIt {
 
     @Test
     @SneakyThrows
+    @WithMockUser(roles = "ADMIN")
     void shouldCreateProduct(){
         ProductDetailsDto productDetailsDto = buildProducts.buildProductDetailsDtoMock();
 
@@ -102,6 +103,7 @@ public class ProductControllerIT extends AbstractIt {
 
     @Test
     @SneakyThrows
+    @WithMockUser(roles = "ADMIN")
     void shouldThrowTitleAlreadyExistsCreateProduct(){
         ProductDetailsDto productDetailsDto = buildProducts.buildProductDetailsDtoMock();
 
@@ -126,6 +128,7 @@ public class ProductControllerIT extends AbstractIt {
 
     @Test
     @SneakyThrows
+    @WithMockUser
     void shouldThrowCustomValidationExceptionCreateProduct() {
         ProductDetailsDto invalidProductDetailsDto = productMapper.toProductDetailsDto(buildProducts.buildThrowCustomValidationExceptionProductDetailsMock());
 
@@ -146,6 +149,7 @@ public class ProductControllerIT extends AbstractIt {
 
     @Test
     @SneakyThrows
+    @WithMockUser
     void shouldThrowValidationExceptionCreateProduct(){
         mockMvc.perform(post("/api/v1/products")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -165,6 +169,7 @@ public class ProductControllerIT extends AbstractIt {
 
     @Test
     @SneakyThrows
+    @WithMockUser(roles = "ADMIN")
     void shouldDeleteProductById() {
         long productId = 1L;
         ProductDetails productDetails = productMapper.toProductDetails(productId, buildProducts.buildProductDetailsDtoMock());
@@ -180,6 +185,7 @@ public class ProductControllerIT extends AbstractIt {
 
     @Test
     @SneakyThrows
+    @WithMockUser
     void shouldGetAllProducts() {
         List<ProductDetails> productDetails = buildProducts.buildProductDetailsListMock();
 
@@ -203,6 +209,7 @@ public class ProductControllerIT extends AbstractIt {
 
     @Test
     @SneakyThrows
+    @WithMockUser
     void shouldFindProductById() {
         ProductEntity productEntity = productMapper.toProductEntity(productMapper.toProductDetails(buildProducts.buildProductDetailsDtoMock()));
 
@@ -224,6 +231,7 @@ public class ProductControllerIT extends AbstractIt {
 
     @Test
     @SneakyThrows
+    @WithMockUser
     void shouldThrowNotFoundExceptionFindProductById() {
         ProblemDetail problemDetail =
                 ProblemDetail.forStatusAndDetail(NOT_FOUND, String.format(PRODUCT_NOT_FOUND_MESSAGE, 1L));
@@ -241,6 +249,7 @@ public class ProductControllerIT extends AbstractIt {
     @Test
     @SneakyThrows
     @EnableFeature(FeatureToggles.SUMMER_SALE)
+    @WithMockUser
     void shouldFindProductBySale() {
         List<ProductDetails> productDetails = buildProducts.buildProductDetailsListMock();
 
@@ -257,6 +266,7 @@ public class ProductControllerIT extends AbstractIt {
     @Test
     @SneakyThrows
     @DisableFeature(FeatureToggles.SUMMER_SALE)
+    @WithMockUser
     void shouldThrowFeatureNotEnableException() {
         ProblemDetail problemDetail =
                 ProblemDetail.forStatusAndDetail(NOT_FOUND, String.format(FEATURE_NOT_ENABLED_MESSAGE, FeatureToggles.SUMMER_SALE.getFeatureName()));
@@ -271,6 +281,7 @@ public class ProductControllerIT extends AbstractIt {
 
     @Test
     @SneakyThrows
+    @WithMockUser(roles = "ADMIN")
     void shouldUpdateProduct() {
         ProductDetailsDto productDetailsDto = buildProducts.buildProductDetailsDtoMock();
 
@@ -289,6 +300,7 @@ public class ProductControllerIT extends AbstractIt {
 
     @Test
     @SneakyThrows
+    @WithMockUser(roles = "ADMIN")
     void shouldDropProductTitleAlreadyExistsUpdateProduct() {
         ProductDetailsDto productDetailsDto = buildProducts.buildProductDetailsDtoMock();
         productRepository.save(productMapper.toProductEntity(productMapper.toProductDetails(buildProducts.buildProductDetailsDto())));
@@ -312,6 +324,7 @@ public class ProductControllerIT extends AbstractIt {
 
     @Test
     @SneakyThrows
+    @WithMockUser(roles = "ADMIN")
     void shouldDropProductNotFoundUpdateProduct() {
         ProblemDetail problemDetail =
                 ProblemDetail.forStatusAndDetail(NOT_FOUND, String.format(PRODUCT_NOT_FOUND_MESSAGE, 1L));
@@ -322,6 +335,39 @@ public class ProductControllerIT extends AbstractIt {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(buildProducts.buildProductDetailsDto())));
+
+    }
+
+    @Test
+    @SneakyThrows
+    void shouldDropUnauthorizedFakeToken() {
+        mockMvc.perform(put("/api/v1/products/{id}", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer fake-token")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @SneakyThrows
+    void shouldDropUnauthorizedWithoutToken() {
+        mockMvc.perform(put("/api/v1/products/{id}", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @SneakyThrows
+    @WithMockUser(roles = "USER")
+    void shouldDropForbiddenCreateProduct(){
+        ProductDetailsDto productDetailsDto = buildProducts.buildProductDetailsDtoMock();
+
+        mockMvc.perform(post("/api/v1/products")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(productDetailsDto)))
+                .andExpect(status().isForbidden());
 
     }
 

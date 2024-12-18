@@ -17,6 +17,7 @@ import com.project.gamemarket.service.exception.CustomerNotFoundException;
 import com.project.gamemarket.service.mapper.CustomDetailsMapper;
 import jakarta.persistence.PersistenceException;
 import lombok.SneakyThrows;
+import lombok.With;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Spy;
@@ -28,6 +29,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.shaded.org.checkerframework.checker.units.qual.N;
@@ -83,6 +85,7 @@ public class CustomerControllerIT extends AbstractIt {
 
     @Test
     @SneakyThrows
+    @WithMockUser(roles = "ADMIN")
     void shouldCreateCustomer() {
 
         CustomerDetailsDto customerDetailsDto = buildCustomers.buildCustomerDetailsDto();
@@ -104,6 +107,7 @@ public class CustomerControllerIT extends AbstractIt {
 
     @Test
     @SneakyThrows
+    @WithMockUser(roles = "ADMIN")
     void shouldThrowCustomerAlreadyExistsException() {
         CustomerDetailsDto customerDetailsDto = buildCustomers.buildCustomerDetailsDto();
         customerRepository.save(customDetailsMapper.toCustomerEntity(customDetailsMapper.toCustomerDetails(customerDetailsDto)));
@@ -120,6 +124,7 @@ public class CustomerControllerIT extends AbstractIt {
 
     @Test
     @SneakyThrows
+    @WithMockUser(roles = "ADMIN")
     void shouldThrowsValidationExceptionWhitNoValidationCustomerFields() {
         CustomerDetailsDto dto = customDetailsMapper.toCustomerDetailsDto(buildCustomers.buildInvalidCustomerDetails());
 
@@ -140,6 +145,7 @@ public class CustomerControllerIT extends AbstractIt {
 
     @Test
     @SneakyThrows
+    @WithMockUser(roles = "ADMIN")
     void shouldThrowsCustomValidationException() {
         CustomerDetailsDto dto = customDetailsMapper.toCustomerDetailsDto(buildCustomers.buildCustomInvalidCustomerDetails());
 
@@ -160,6 +166,7 @@ public class CustomerControllerIT extends AbstractIt {
 
     @Test
     @SneakyThrows
+    @WithMockUser
     void shouldFindByCustomerReference() {
         CustomerDetails customer = buildCustomers.buildCustomerDetails();
         CustomerEntity customerEntity = customDetailsMapper.toCustomerEntity(customer);
@@ -181,6 +188,7 @@ public class CustomerControllerIT extends AbstractIt {
 
     @Test
     @SneakyThrows
+    @WithMockUser
     void shouldThrowsCustomerNotFoundException() {
         UUID customerId = UUID.randomUUID();
 
@@ -205,6 +213,7 @@ public class CustomerControllerIT extends AbstractIt {
 
     @Test
     @SneakyThrows
+    @WithMockUser(roles = "ADMIN")
     void shouldFindAllCustomers() {
         List<CustomerDetails> customerDetails = buildCustomers.buildCustomerDetailsList();
 
@@ -226,6 +235,7 @@ public class CustomerControllerIT extends AbstractIt {
 
     @Test
     @SneakyThrows
+    @WithMockUser(roles = "ADMIN")
     void shouldDeleteCustomer() {
         CustomerDetails customerDetails = customDetailsMapper.toCustomerDetails(buildCustomers.buildCustomerDetailsDto());
 

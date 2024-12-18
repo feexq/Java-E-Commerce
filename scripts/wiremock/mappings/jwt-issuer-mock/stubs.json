@@ -1,0 +1,19 @@
+{
+  "mappings": [
+    {
+      "id": "59c4b094-beae-4e86-a6e4-d49cefebcfa4",
+      "name": "Validate Jwt token",
+      "request": {
+        "method": "GET",
+        "url": "/.well-known/jwks.json"
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "jwks.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    }
+  ]
+}

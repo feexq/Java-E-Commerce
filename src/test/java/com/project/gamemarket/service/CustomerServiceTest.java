@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import java.util.Arrays;
 import java.util.List;
@@ -44,6 +45,7 @@ public class CustomerServiceTest {
 
     @Test
     @DisplayName("Delete Customer - Persistence Exception")
+    @WithMockUser(roles = "ADMIN")
     void testDeleteCustomer_PersistenceException() {
         UUID customerId = UUID.randomUUID();
         doThrow(new RuntimeException("Delete failed")).when(customerRepository).deleteByNaturalId(customerId);

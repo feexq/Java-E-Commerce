@@ -12,6 +12,7 @@ import com.project.gamemarket.service.mapper.CustomDetailsMapper;
 import jakarta.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +31,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('ADMIN')")
     public List<CustomerDetails> getAllCustomersDetails() {
         return customDetailsMapper.toCustomerDetailsList(customerRepository.findAll());
     }
@@ -44,6 +46,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public CustomerDetails createCustomer(CustomerDetails customerDetails) {
         CustomerEntity customerEntity = customDetailsMapper.toCustomerEntity(customerDetails);
         if (customerRepository.existsByEmail(customerEntity.getEmail()) ||
@@ -60,6 +63,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteCustomer(UUID customerReference) {
         try {
             customerRepository.deleteByNaturalId(customerReference);

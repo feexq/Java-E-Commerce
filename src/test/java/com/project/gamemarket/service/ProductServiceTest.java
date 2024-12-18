@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import static org.mockito.Mockito.*;
 
@@ -73,6 +74,7 @@ public class ProductServiceTest {
 
     @Test
     @DisplayName("Get Product by Key Activation - Expired Key")
+    @WithMockUser
     void testGetProductByKeyActivation_ExpiredKey() {
         KeyActivationRequestDto requestDto = KeyActivationRequestDto.builder().build();
         KeyActivationResponseDto responseDto = KeyActivationResponseDto.builder()
@@ -89,6 +91,7 @@ public class ProductServiceTest {
 
     @Test
     @DisplayName("Get Sale Products - Halloween Sale")
+    @WithMockUser
     void testGetSaleProductByHoliday_Halloween() {
         when(featureToggleService.isFeatureEnabled(FeatureToggles.HALLOWEEN.getFeatureName())).thenReturn(true);
         when(productRepository.findAll()).thenReturn(List.of(productEntity));
@@ -104,6 +107,7 @@ public class ProductServiceTest {
 
     @Test
     @DisplayName("Get Sale Products - Summer Sale")
+    @WithMockUser
     void testGetSaleProductByHoliday_SummerSale() {
         when(featureToggleService.isFeatureEnabled(FeatureToggles.HALLOWEEN.getFeatureName())).thenReturn(false);
         when(featureToggleService.isFeatureEnabled(FeatureToggles.SUMMER_SALE.getFeatureName())).thenReturn(true);
