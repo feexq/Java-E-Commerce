@@ -6,6 +6,5 @@ import lombok.experimental.UtilityClass;
 public class SecurityHeader {
 
     public static final String API_KEY_HEADER = "Market-Api-Key";
-    public static final String ROLE_CLAIMS_HEADER = "Role-Claims";
 
 }

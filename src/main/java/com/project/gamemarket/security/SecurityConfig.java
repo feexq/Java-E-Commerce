@@ -16,7 +16,6 @@ import org.springframework.security.oauth2.server.resource.web.HeaderBearerToken
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import static com.project.gamemarket.util.SecurityHeader.ROLE_CLAIMS_HEADER;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
@@ -33,9 +32,6 @@ public class SecurityConfig {
     @Order(1)
     public SecurityFilterChain securityFilterChainCustomer(HttpSecurity http) throws Exception {
 
-        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(new AuthorityConverter());
-
         http.securityMatcher(CUSTOMER_V1_API)
                 .cors(Customizer.withDefaults())
                 .csrf(CsrfConfigurer::disable)
@@ -49,9 +45,6 @@ public class SecurityConfig {
     @Bean
     @Order(2)
     public SecurityFilterChain securityFilterChainOrdersV1(HttpSecurity http, JwtDecoder decoder) throws Exception {
-
-        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(new AuthorityConverter());
 
         http.securityMatcher(ORDER_V1_API)
                 .cors(withDefaults())
