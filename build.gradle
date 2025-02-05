@@ -29,7 +29,8 @@ ext {
 			"**/dto/*",
 			"**/service/mapper/*",
 			"**/*MarketApplication.*",
-			"**/config/*"
+			"**/config/*",
+			"**/security/*"
 	]
 }
 
@@ -53,6 +54,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation:3.3.4'
 	implementation 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
 	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+	implementation 'org.springframework.security:spring-security-oauth2-client'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.liquibase:liquibase-core:4.30.0'
 	implementation 'org.postgresql:postgresql:42.7.4'
@@ -60,18 +64,10 @@ dependencies {
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
 	testImplementation "org.wiremock:wiremock-jetty12:3.9.2"
 	testAnnotationProcessor 'org.projectlombok:lombok:1.18.34'
+	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'org.projectlombok:lombok:1.18.34'
 	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
 	testImplementation 'org.testcontainers:junit-jupiter'
 	testImplementation 'org.assertj:assertj-core:3.24.2'
-//	// https://mvnrepository.com/artifact/org.mockito/mockito-core
-//	testImplementation 'org.mockito:mockito-core:2.1.0'
-//	// https://mvnrepository.com/artifact/org.mockito/mockito-junit-jupiter
-//	testImplementation 'org.mockito:mockito-junit-jupiter:5.14.2'
-
-
-
-
-
 }
 
